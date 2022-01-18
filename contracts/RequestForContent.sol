@@ -10,26 +10,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155Pausable.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155Burnable.sol";
 
-/** 
-    TO DO
-    Out of the RfCProposalNFT (called by the content orchestrator) is minted the final RfC,
-    which is the same as the RfCProposalNFT, but with enriched content (all data pertaining
-    to the CP (address, amount, ...), the actual total funds once all investors send it during
-    the funding/approval round).
-**/
 
-
-//**the upgradable pattern** is chosen in the event of a real dapp evolution, as I would like a beta to be available to the public, 
-// but also that they keep their access to the contents and the shares on those contents produced in the beta phase, w/o a cumbersome 
-// upgrade and migration at their gas cost, and implying operations from those users that might be challenging for some. 
-
-// Once validated (cf. conditions for an RfC to be validated - already defind in your notes):
-// Mint an ERC155 allowing to keep track of those multiple tokens multiple positions:
-//  - Mint an NFT of the RfC
-//  - At the same time, mint the ERC20s / pooled funds associated to the RfC (and redeemable by the different participants in
-//      different ways)
-//  - Splitted RfC if it happens
-//  - ...
 
 contract RequestForContent is ERC1155/*, Initializable, ERC1155Upgradeable, OwnableUpgradeable, ERC1155SupplyUpgradeable, UUPSUpgradeable*/ {          
 

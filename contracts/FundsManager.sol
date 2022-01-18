@@ -21,11 +21,20 @@ contract FundsManager {
     
     uint256 private amount;
 
+    uint256 private rfcFund;
+
+    // used in SimpleInvestorsVote:
+    uint256 public immutable securityDeposit = 300; // 300$ in stablecoin
+
+    mapping (address => mapping(uint256 => bool)) madeSafeDeposit;
+
+    mapping (address => mapping (uint256 => bool)) private securityDepositIsCommitedToAnRfC;
+
     uint256 public immutable MIN_ESCROW_TIME = 30 days;
 
-    bool private locked;
-
     mapping (address => mapping (uint256 => bool)) userHasSecurityDeposit;
+
+    bool private locked;
 
     uint256 public shareOfRfCOwnership;
 
@@ -33,7 +42,9 @@ contract FundsManager {
 
     mapping (address => mapping(uint256 => uint256)) public shareRatioOfRfC; 
 
-
+    //a value that says when a RfC is passes the proposal round and is now in "processing" (by a CP) status:
+    // => this value should be returned to this contract by the contract implementing the proposal logic
+    bool public hasPassed = false;
 
     //mapping (address => mapping (address => bool)) isIn
 
@@ -67,7 +78,7 @@ contract FundsManager {
         //Define roles of the pattern access control
         // TO DO
 
-        //instantiates the other contracts
+        //instantiates the other contracts and have the address "known" by this contract
         RequestForContent RfC = new RequestForContent();
 
     }
@@ -129,6 +140,7 @@ contract FundsManager {
 
         return RfC.getRfCid(_id);
     }
+
 
 
     //Default functions in case of accidental crypto sent to the contract => revert

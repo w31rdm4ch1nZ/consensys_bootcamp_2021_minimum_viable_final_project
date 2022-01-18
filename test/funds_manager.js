@@ -1,4 +1,5 @@
 const FundsManager = artifacts.require("FundsManager");
+const RequestForContent = artifacts.require("RequestForContent");
 
 /*
  * uncomment accounts to access the test accounts made available by the
@@ -6,8 +7,10 @@ const FundsManager = artifacts.require("FundsManager");
  * See docs: https://www.trufflesuite.com/docs/truffle/testing/writing-tests-in-javascript
  */
 contract("FundsManager", function (accounts) {
-  it("should assert true", async function () {
-    await FundsManager.deployed();
+    beforeEach(async () => {
+      FundsManager = await FundsManagerFactory.new(FundsManager.address);
+      RequestForContent = await RequestForContentFactory.new(FundsManager.address);
+    });
     return assert.isTrue(true);
   });
 

@@ -33,16 +33,16 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155Burnable.sol";
 
 contract RequestForContent is ERC1155/*, Initializable, ERC1155Upgradeable, OwnableUpgradeable, ERC1155SupplyUpgradeable, UUPSUpgradeable*/ {          
 
-    //Each type of content is linked to one or several protocols (Filecoin, Audius, LivePeer, etc.), each linked 
-    //to a certain collateral that will allow the payment of the fees to become the medium of the content 
-        //  => can be implemented by a "simple" call to a swap contract, calling on Uniswap contract
+    using Counters for Counters.Counter;
+    using SafeMath for uint256;
+    using SafeERC20 for IERC20;
 
-    // Make sure choosing it to be a data structure enum is still dynamic - otherwise choose a different way to build this so it can be dynamic, maybe by using an index that can take in 
-    // input some data from th UI frontend - through web3.js or so, in a way that can't be tampered with (if it is even possible without using a central server, and is using the security
-    // model of ethereum smart contract).
+    // should be able to get rid of the getRfCid() call chain
+    Counters.Counter private _tokenIdTracker;
 
     //I need this to be returned by the ERC1155 RfC contract (instead of duplicating the state variable in every contract)
     //  AND I want it to be called only by contracts that need it (no EOAs)
+    //  some variable that keeps the set of existing RfCid (would call a function in the EscrowRfC contract if you keep it)
     uint256 private RfCid;
 
     uint256 private fundsPooledForRfC;  // should be set after mint...? (because unknown at proposal)
@@ -268,9 +268,21 @@ contract RequestForContent is ERC1155/*, Initializable, ERC1155Upgradeable, Owna
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
-    //replace the need for the state variable RfCid that you defined in this contract:
-    function getRfCId(uint256 _RfCid) external OnlyApprovedContracts returns(uint256) {
-        return _RfCid;
+    // following this: how to get 
+    function mintRfCNFT(address to) external override returns (uint256) {
+        _mint(to, _tokenIdTracker.current());
+        _tokenIdTracker.increment();
+
+        return _tokenIdTracker.current();
+    }
+
+    //replace the need for the state variable RfCid that you defined in this contract - see function above
+    function getRfCId(uint256 _id) external OnlyApprovedContracts view returns(uint256) {
+        if (_id == existingIds) {
+            //maybe consider this function to return in case of existing id a set of information that will be consumed by the frontend
+            return true;
+        }
+        return false;
     }
 
     function setEnums(uint256 _data) internal {

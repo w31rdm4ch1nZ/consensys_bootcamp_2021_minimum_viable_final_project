@@ -1,5 +1,7 @@
 # My Consensys 2021 Bootcamp Final Project
 
+[I have to amend the part on the general flow as I am going through even simpler - mainly omitting for now the CP silent reverse auction for their selection]
+
 This project has an overambitious goal, that eventually results in a very simplistic design of its initial purpose:
 an expression of the web3, by bridging the digital content creation economy which thrives in the "NFT ecosystem", with the DeFi stack.
 

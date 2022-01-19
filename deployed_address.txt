@@ -1,0 +1,8 @@
+## file which contains the testnet address and network where your contract(s) have been 
+
+Public testnet: 
+
+Contracts deployed addresses:
+
+
+    => TBD

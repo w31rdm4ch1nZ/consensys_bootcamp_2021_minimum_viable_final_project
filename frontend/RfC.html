@@ -1,0 +1,183 @@
+<!-- should allow on the listing to get custom data to the account, eg. provide a link to its dashboard. -->
+
+<!-- eth connected account showed in a disabled button on right top corner-->
+
+<!-- Get the drop down menu so it can be grouped in columns (not stacked on each other) -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Content creation protocol</title>
+    <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+    />
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css"
+        rel="stylesheet"
+    />
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.14.1/css/mdb.min.css"
+        rel="stylesheet"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
+    <link rel="stylesheet" href="dapp_main.css" type="text/css" />
+<nav>
+</head>
+
+<body>
+    <main class="container-fluid">
+        <header>
+          <div id="logo-container">
+            <h1 id="logo-text" class="text-center">
+                Define your Request For Content, and mint it once your staisfied
+            </h1>
+
+
+          <section>
+                      <h6 class="card-title">
+                          Mandatory elements for the RfC to be validated as successful when delivered:
+                      </h6>
+
+                        <form>
+                        <label id="when">WHEN</label></br>
+                        <select class="when" id ="when" size=4 multiple>
+                          
+                            <option value="Live">Live</option>
+                            <option value="Live">Stored</option>
+                            <option value="Live">Archived</option>
+                            <option value="Live">undefined</option>                            
+                          </select>
+                        </form>
+                      
+                        <form>
+                          <label id="">Content Type Delivered</label></br>
+                          <select class="when" id ="when" size=4 multiple>
+                                                     
+                              <option value="Live">NFT</option>
+                              <option value="Live">Stream</option>
+                              <option value="Live">Video</option>
+                              <option value="Live">Audio</option>
+                              <option value="Live">Article</option>
+                              <option value="Live">Software</option>
+                              <option value="Live">Video</option>
+                              <option value="Live">undefined</option>
+                            </select>
+                          </form>
+
+                          <form>
+                            <label id="StoragePlatformUsedToDeliverContent">Storage Platform Used To Store Content:</label></br>
+                            <select class="when" id ="when" size=4 multiple>
+                                                       
+                                <option value="Live">EthBlocks</option>
+                                <option value="Live">IPFS</option>
+                                <option value="Live">Arweave</option>
+                                <option value="Live">Siacoin</option>
+                                <option value="Live">AWS</option>
+                                <option value="Live">Azure</option>
+                                <option value="Live">Storj</option>
+                                <option value="Live">undefined</option>
+                              </select>
+                            </form>
+
+                          <form>
+                            <label for="">Format of the digital content</label></br>
+                            <select class="when" id ="when" size=4 multiple>
+                                                       
+                                <option value="Live">EthBlock</option>
+                                <option value="Live">EthTx</option>
+                                <option value="Live">jpg</option>
+                                <option value="Live">gif</option>
+                                <option value="Live">svg</option>
+                                <option value="Live">mp4</option>
+                                <option value="Live">mp3</option>
+                                <option value="Live">rust</option>
+                                <option value="Live">typescript</option>
+                                <option value="Live">WindowsExe</option>
+                                <option value="Live">dockerizedImage</option>
+                                <option value="Live">latex</option>
+                                <option value="Live">undefined</option>
+                              </select>
+                            </form>
+
+                            <form>
+                              <label id="ContentIsRedeemableFor">Content Can Be Redeemable For:</label></br>
+                              <select class="when" id ="when" size=4 multiple>
+                                                         
+                                  <option value="Live">ETH</option>
+                                  <option value="Live">LVP</option>
+                                  <option value="Live">USDT</option>
+                                  <option value="Live">wUST</option>
+                                  <option value="Live">DAI</option>
+                                  <option value="Live">DecentralandIsland</option>
+                                  <option value="Live">SandboxSpace</option>
+                                </select>
+                              </form>
+
+                            <form>
+                              <label for="PlatformCompatibilityAtDelivery">Platform Compatibility At Delivery</label></br>
+                              <select class="when" id ="when" size=4 multiple>
+                                                         
+                                  <option value="Live">OpenSea</option>
+                                  <option value="Live">LivePeer</option>
+                                  <option value="Live">Audius</option>
+                                  <option value="Live">Filecoin</option>
+                                  <option value="Live">Arweave</option>
+                                  <option value="Live">Siacoin</option>
+                                  <option value="Live">Decentraland</option>
+                                  <option value="Live">Sandbox</option>
+                                  <option value="Live">undefined</option>
+                                </select>
+                              </form>
+
+                              <form>
+                                <label for="dataAPIToBeUsed">Data API To Be Used:</label></br>
+                                <select class="when" id ="when" size=4 multiple>
+                                                           
+                                    <option value="Live">Google</option>
+                                    <option value="Live">TheGraph</option>
+                                    <option value="Live">Twitter</option>
+                                  </select>
+                                </form>
+                    
+            </section>
+
+          <section>
+              <div class="row d-flex justify-content-center">
+                <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+                  <div class="card">
+                    <div class="card-body">
+                      <h4 class="card-title">
+                          Mint your Request For Content proposal:
+                      </h4>
+      
+                      <button
+                        class="btn btn-primary btn-lg btn-block mb-3"
+                        id="connectButton"
+                        disabled
+                      >
+                        MINT
+                      </button>
+      
+                      <p class="info-text alert alert-secondary">
+                        mint result: <span id="getMintResult"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </section>
+
+<script src="./js/dapp.js" defer></script>
+</br></br></br>
+
+<footer>
+</br >
+<a rel="license" href="https://spdx.org/licenses/GPL-3.0-or-later.html">
+    <p>This work is licensed under a  GPL-3.0-or-later </p>
+</a>
+</footer>
+</html>

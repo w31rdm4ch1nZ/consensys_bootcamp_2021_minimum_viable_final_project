@@ -1,0 +1,19 @@
+section {
+    margin: 20px 0 20px 0;
+  }
+  
+  .info-text {
+    font-size: 0.8em;
+  }
+  
+  .full-width {
+    width: 100%;
+  }
+  
+  .card {
+    margin-bottom: 20px;
+  }
+
+#content {
+  text-align: center;
+}

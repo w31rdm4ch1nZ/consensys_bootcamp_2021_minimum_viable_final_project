@@ -3,57 +3,209 @@
   <head>
     <meta charset="UTF-8">
     <title>Content creation protocol</title>
+    <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+    />
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css"
+        rel="stylesheet"
+    />
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.14.1/css/mdb.min.css"
+        rel="stylesheet"
+    />
     <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="dapp_main.css" type="text/css" />
 </head>
 <body>
-    <h1>A platform disintermediating the media industries!</h1>
-    <p>Welcome netizens! This protocol is meant to empower you as a content creator, curator, producer and anything you can think of in between, create or want the world to know.
-    </p>
-    
-    <p>We aim at making the participants to the information economy to interact directly again, and the information to flow as the early internet once made us
-        think of what it could be.
-    </p>
-    
-    <p>To start, anyone can choose to paticipate as an investor, a content provider or just to access contents created through
-        this decentralized, peer-to-peer protocol. 
-        
-        We are focusing on introducing trustless aspects and an economical design that gets rid of the data eaters and advertisements business model, using DeFi instead of 
-        you as a lab rat whose behavior is the target ot the... well you know them :)</p>
-    <p>
-        You can now collaborate in creating rich content productions, without having to trust a single source of content, and we will refine the protocol so you can define more and more your own rules!
-    </p>
-</br>
 
-    <div id="mm-detected"></div>
 
-    <!-- Connect to MetaMask Wallet -->
-
-    <button class="mm-connect-btn" id="connectButton">Connect to Ethereum</button>
-    
-    
-    <h2>Account: <span class="showAccount"></span></h2> 
-
-    <!-- Display current address -->
-
-    <div id="mm-current-account"></div>
-      <!-- Provide an input to change the contract text value -->
-    
     </br></br>
-    
-    <!-- a link redirecting to investor dashboard, and then all buttons for the specific txs -->
-    <div>
-        <a rel="investor dashboard" href="http:107.0.0.1/investor_dashboard.html">
-    </div>
+
+    <main class="container-fluid">
+        <header>
+          <div id="logo-container">
+            <h1 id="logo-text" class="text-center">
+                Generalized, permissionless and trustless </br>
+                 Content Creation protocol
+            </h1>
+            </br></br>
+            <h2>
+                A platform disintermediating the media industries!
+            </h2>
+            </br>
+            <p>Welcome netizens! This protocol is meant to empower you as a content creator, collector, curator, investor, producer, and anything you can think of in between.
+            </p>
+            
+            <p>
+                We aim at making the participants to the information economy to interact directly and freely again.
+            </p>
+            
+            <p>
+                Anyone can choose to paticipate as an investor, a content provider or just to access contents created through
+                this decentralized, peer-to-peer protocol. 
+                
+                We are focusing on introducing trustless aspects and an economics design that gets rid of the data trackers,
+                 and go away from the advertisements business model, using DeFi instead of 
+                you as a lab rat whose behavior is the target ot the... well you know them :)</p>
+            <p>
+                You can now collaborate in creating rich content productions, without having to trust a single source of content, or being dependant of one platform having control over everything.
+            </p>
+            <p> 
+                We will refine the protocol over time so you can define more and more your own rules of interaction around any content you want to see created!
+            </p>
+          </div>
+        </header>
+        
+        <section>
+          <h3 class="card-title">
+            Status
+          </h3>
+  
+          <div class="row">
+            <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+              <p class="info-text alert alert-primary">
+                Network: <span id="network"></span>
+              </p>
+            </div>
+  
+            <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+              <p class="info-text alert alert-secondary">
+                ChainId: <span id="chainId"></span>
+              </p>
+            </div>
+  
+            <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+              <p class="info-text alert alert-success">
+                Accounts: <span id="accounts"></span>
+              </p>
+            </div>
+          </div>
+        </section>
+  
+        <section>
+          <div class="row d-flex justify-content-center">
+            <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    Connect to an Ethereum network
+                  </h5>
+  
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="connectButton"
+                    disabled
+                  >
+                    Connected
+                  </button>
+  
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="getAccounts"
+                  >
+                    eth_accounts
+                  </button>
+  
+                  <p class="info-text alert alert-secondary">
+                    eth_accounts result: <span id="getAccountsResult"></span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+  
+        <section>
+            <div class="row">
+          <!-- <div class="row d-flex justify-content-center"> -->
+                <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+                    <div class="card full-width">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                Get <b>access</b> to a content created through this protocol:
+                            </h6>
+                            <hr />
+                            <a rel="investor dashboard" href="./access_deliveredRfC_listing.html">
+                            <p>Go to the list of content already produced and made accessible</p>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            
+
+                <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+                    <div class="card full-width">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                            <b>Initiate</b> a new Request for Proposal:
+                            </h6>
+                            <hr />
+                            <a rel="investor dashboard" href="./RfC.html">
+                            <p>Go to the Request For Content specification page</p>
+                            </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+          
+            </div>
+
+        
+        </section>
+
+            <section>
+                <div class="row">
+              <!-- <div class="row d-flex justify-content-center"> -->
+                    <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+                    <div class="card full-width">
+                        <div class="card-body">
+                        <h6 class="card-title">
+                            Become a <b>Content Provider</b> and commit to deliver a content specified by a Request For Content:
+                            
+                        </h6>
+          
+                        <hr />
+                        <a rel="investor dashboard" href="./CP_dashboard.html">
+                        <p>Go to the Content Provider dashboard</p>
+                        </a>
+                        </p>
+                    </div>
+                </div>
+                </div>
+
+                <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch">
+                    <div class="card full-width">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                            Become an <b>Investor</b> and be an active part on the content creation defined by a Request For Content token
+                            </h6>
+                            <hr />
+                            <a rel="investor dashboard" href="./investor_dashboard.html">
+                            <p>Go to the Investor dashboard</p>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        
+        </section>
+  
+
+      </main>
     
     
 </body>
-<script src="mm_connect.js" defer></script>
+<script src="./js/dapp.js" defer></script>
 
-</br></br></br>
 
 <footer>
 </br >
-<a rel="license" href="https://spdx.org/licenses/GPL-3.0-or-later.html">
+<a class="text-center" rel="license" href="https://spdx.org/licenses/GPL-3.0-or-later.html">
     <p>This work is licensed under a  GPL-3.0-or-later </p>
 </a>
 </footer>

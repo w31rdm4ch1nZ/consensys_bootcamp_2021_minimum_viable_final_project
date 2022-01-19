@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Content creation protocol</title>
+    <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+    />
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css"
+        rel="stylesheet"
+    />
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.14.1/css/mdb.min.css"
+        rel="stylesheet"
+    />
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="dapp_main.css" type="text/css" />
+</head>
+
+<body>
+
+
+    <!-- Connect to MetaMask Wallet -->
+
+    <!--<button class="mm-connect-btn" id="connectButton">Connect to Ethereum</button> -->
+
+    <!-- Display current address -->
+
+
+    </br></br>
+
+    <main class="container-fluid">
+        <header>
+          <div id="logo-container">
+            <h1 id="logo-text" class="text-center">
+                Generalized, permissionless and trustless </br>
+                 Content Creation protocol
+            </h1>
+            </br></br>
+
+            <section>
+                <div class="row">
+                <div
+                  class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+                >
+                  <div class="card full-width">
+                    <div class="card-body">
+                      
+                      <h6 class="card-title">
+                        Access the content of your choice
+                      </h6>
+                
+                      <p class="info-text alert alert-secondary">Enter the #id of the RfC you want to invest in:</p>
+                        <input type="text" id="RfCid" name="RfCid"><br><br>
+                        
+                      <p class="info-text alert alert-secondary">Deposit the required amount to acces this content:</p>
+                      
+                      <input type="text" id="RfCid" name="RfCid"><br><br>
+      
+                      <button
+                        class="btn btn-primary btn-lg btn-block mb-3"
+                        id="investButton"
+                        disabled
+                      >
+                        Access
+                      </button>
+      
+                      <p class="info-text alert alert-secondary">
+                        Content access type: <span id="contractStatus">Public/Common Good - no payment, except fees, required</span>
+      
+
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+                >
+                  <div class="card full-width">
+                    <div class="card-body">
+                      <h6 class="card-title">
+                        List of the content created and made acessible on the platform:
+                      </h6>
+      
+                      <p class="info-text alert alert-secondary">List of contents:</p>
+                      <div id="content">   
+                        <p >list of RfC successfully delivered</br>
+                                ...</br>
+
+                        </p>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+            </section>
+          </div>       
+    </main>    
+</body>

@@ -22,7 +22,7 @@ contract SimpleInvestorVote {
 
     function approveSecurityDepositForRfC(address _investor, uint256 _deposit, uint256 _RfCid) private onlyInvestor onlyProposal {
 
-        //check again this logic (basically logic of a safe deposit => locked funds + a defined amount locked)
+        //check again this logic (basically logic of a safe deposit => locked funds + a defined amount locked + time locked)
         require(_investor.balance >= _deposit, "not enough funds");
         require(instanceFundsManagerContract.madeSafeDeposit == locked, "no safe deposit");
         require(_deposit == instanceFundsManagerContract.securityDeposit, "the investor can't vote as she does not have the amount requried as security deposit available and approved for this RfC");
@@ -31,14 +31,18 @@ contract SimpleInvestorVote {
     }
 
     function commitFundsToRfC(address _investor, uint256 _amount) internal {
+        
         if (instanceFundsManagerContract.securityDeposit) {
             if (instanceFundsManagerContract.securityDepositIsCommitedToAnRfC == false) {    
-                instanceFundsManagerContract.rfcFund += investor[safeDeposit];
+                instanceFundsManagerContract.rfcFund += _investor[safeDeposit];
+                //_investor.
             }
             else {
                 //check if amount includes a safeDeposit amount
                 require(_amount >= instanceFundsManagerContract.securityDeposit);
                 balance[_investor] -= _amount;
+
+                
                 instanceFundsManagerContract.rfcFund += 300;
             }
 
@@ -51,7 +55,9 @@ contract SimpleInvestorVote {
 
     function signalInterest(address _investor) internal {
         require(_investor.balance >= _deposit, "not enough funds");
+        
         balance[_investor] -= _amount;
+
         instanceFundsManagerContract.rfcFund += 300;
 
     }

@@ -40,8 +40,8 @@ contract InvestorsEscrow {
     
     uint256 public immutable MIN_ESCROW_TIME = 30 days; //check for how to set a duration/expiration time, etc.
 
-    RequestForContent public RfC = RfC.address;
-    uint256 RfCId;
+    RequestForContent RfC = RfC.address;
+
 
     a value that says when a RfC is passes the proposal round and is now in "processing" (by a CP) status:
      => this value should be returned to this contract by the contract implementing the proposal logic
@@ -63,7 +63,7 @@ contract InvestorsEscrow {
     just want to be able to have a get function to query balance investors related to a RfC ID for the user 
      to have access to this information => could be a uint returned before funds are pulled by FundsManager
      contract for a specific RfC id
-    /*
+    
     mapping (address => uint256) public balanceInvestorsPool;
 
     uint256 investorFundsPooled;

@@ -1,30 +1,28 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155Pausable.sol";
-import "@openzeppelin/contracts/token/ERC1155/ERC1155Burnable.sol";
-
+/** Simplify: make it ERC-721 instead of ERC-1155 for now **/
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
 
-contract RequestForContent is ERC1155/*, Initializable, ERC1155Upgradeable, OwnableUpgradeable, ERC1155SupplyUpgradeable, UUPSUpgradeable*/ {          
+
+
+contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {          
 
     using Counters for Counters.Counter;
     using SafeMath for uint256;
-    using SafeERC20 for IERC20;
 
-    // should be able to get rid of the getRfCid() call chain
     Counters.Counter private _tokenIdTracker;
 
     //I need this to be returned by the ERC1155 RfC contract (instead of duplicating the state variable in every contract)
     //  AND I want it to be called only by contracts that need it (no EOAs)
     //  some variable that keeps the set of existing RfCid (would call a function in the EscrowRfC contract if you keep it)
-    uint256 private RfCid;
+    uint256 private RfCid = _tokenIdTracker;
 
     uint256 private fundsPooledForRfC;  // should be set after mint...? (because unknown at proposal)
 
@@ -218,7 +216,7 @@ contract RequestForContent is ERC1155/*, Initializable, ERC1155Upgradeable, Owna
     //Set a RfC structure (built with inputs from the Proposer) to enter the proposal to CPs cycle will require from investors to commit funds/send funds to the escrow 
     // contract
 
-    //RfC struct has to pass some basic conditions: 
+    //RfC struct has to pass some basic conditions: => make those part of your tests (?)
     // length != null
     // length > 0 
     // components <= 256 (check if data type like struct can have more elements??)
@@ -231,31 +229,47 @@ contract RequestForContent is ERC1155/*, Initializable, ERC1155Upgradeable, Owna
         _;
     }
 
+    event SucessfullyMinted(address RfC, uint256 id, uint256 time);
 
-    // deploy contract
-    constructor() public {
-        operator = fundsManager;   //will be the FundsManager contract => logic that can be adapted further to my use case/pattern
-        //call to ERC1155 (maybe the interface of the one you imported)
-        setApprovalForAll(operator, true);
+    constructor() ERC721("RequestForContent", "RFC") {}
+
+    function _baseURI() internal pure override returns (string memory) {
+        return "ipfs://blabla_masterpiece_genart_by_supadupaNFTstar.mp4";
     }
 
+
+    function safeMint(address to) external onlyOwner {
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(to, tokenId);
+
+        emit SucessfullyMinted(to, tokenId, now);   // "now" gives the time in unix standard = make a conversion in your js
+    }
 
     // The following functions are overrides required by Solidity.
 
-    function _beforeTokenTransfer(address operator, address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId)
         internal
-        override(ERC1155Upgradeable, ERC1155SupplyUpgradeable)
+        override(ERC721, ERC721Enumerable)
     {
-        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+        super._beforeTokenTransfer(from, to, tokenId);
     }
 
-    // following this: how to get 
-    function mintRfCNFT(address to) external override returns (uint256) {
-        _mint(to, _tokenIdTracker.current());
-        _tokenIdTracker.increment();
-
-        return _tokenIdTracker.current();
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
+
+
+    /** 
+    
+        >>>CHECK what you should keep, as what precedes are the standard functions of NFTs (=> OpenZeppelin Contracts Wizard)<<<
+    
+    **/
 
     //replace the need for the state variable RfCid that you defined in this contract - see function above
     function getRfCId(uint256 _id) external OnlyApprovedContracts view returns(uint256) {

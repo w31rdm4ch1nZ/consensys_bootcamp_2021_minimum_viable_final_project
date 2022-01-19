@@ -16,15 +16,17 @@ import "./RequestForContent.sol";
 contract FundsManager {
 
     address public user;
+
+    mapping(address => mapping(address => uint)) public allowance;
     
-    uint256 public contractBalance; // by default can be accessed by this.balance, or something like that
+    uint256 private contractBalance = address(this).balance; // to be used in functions where the state can be changed (limiting the scope through private)
     
     uint256 private amount;
 
     uint256 private rfcFund;
 
     // used in SimpleInvestorsVote:
-    uint256 public immutable securityDeposit = 300; // 300$ in stablecoin
+    uint256 public immutable securityDeposit = 0.1; // arbitrary value for now in eth (should be expressed in $stablecoin eventually - next iteration)
 
     mapping (address => mapping(uint256 => bool)) madeSafeDeposit;
 
@@ -57,12 +59,23 @@ contract FundsManager {
     // value should be assigned in a function called specifcally and only in a context where the caller is an investor (send ether for a RfCid specified as input)
     ParticipantType userType = ParticipantType.isUser;
 
+    modifier hasFunds{
+        require(user.msg.value >= msg.value, "The user has not enough funds for the tx to happen");
+        _;
+    }
+
+    modifier userHasSecurityDeposit{
+        require(userHasSecurityDeposit == true, "The user does not have made the safety deposit that enables to act as investor  or content provider");
+        _;
+    }
+
+    // not sure I need it now as I will be using the Owner access pattern
     modifier onlyInvestors{
         require(userType == ParticipantType.isInvestor, "The user has to be an investor");
         _;
     }
 
-    modifier onlyCP{
+    modifier onlyCPs{
         require(userType == ParticipantType.isContentProvider, "The user has to be an investor");
         _;
     }
@@ -72,6 +85,7 @@ contract FundsManager {
         _;
     }
 
+    event DepositETH(address userDepositing, uint deposit);
     constructor()  {
         //test pre-game (to disappear)
         
@@ -83,48 +97,53 @@ contract FundsManager {
 
     }
 
-    /*
-    receive() external payable {
-        userType = ParticipantType.isInvestor;
-
-        //increment contract balance
-        contractBalance += msg.value;
-    }
-    */
-
     //Returns balance of InvestorEscrow contract
     function getContractBalance() public view returns(uint){
         return address(this).balance;
     }
 
-    function depositETH(uint256 bundleId) external payable override {
+    function depositETHandLock() external payable override userHasSecurityDeposit {
+        
+        require(msg.value >= securityDeposit, "the amount provided is insufficient to constitute a safetyDeposit");
 
-        uint256 amount = msg.value;
+        balance[msg.sender] -= msg.value;
 
-        bundleETHHoldings[bundleId] = bundleETHHoldings[bundleId].add(amount);
-        emit DepositETH(_msgSender(), bundleId, amount);
+        address(this).balance += msg.value;
+
+        hasSafetyDeposit[msg.sender] = true;
+
+        if (securityDepositIsCommitedToAnRfC == false) {    
+                
+            rfcFund += _investor[safeDeposit];
+            //_investor.
+        }
+        else if () {
+            //check if amount includes a safeDeposit amount
+            require(_amount >= instanceFundsManagerContract.securityDeposit);
+            balance[_investor] -= _amount;
+            instanceFundsManagerContract.
+
+            instanceFundsManagerContract.rfcFund += 300;
+        
+
+        signalInterest(_investor);
+        }
+        else (instanceFundsManagerContract.securityDeposit ){
+            //...
+        }
+            
+        emit DepositETH(_userDepositing, msg.value);
     }
-    function manageInvestorsFunds() internal onlyInvestors {
-        //TO DO
-        //the usual require()
-        //add to FundsManager (could have a contract called Fund instantiated for more readability - more to think about)
 
-
-    }
-
-    //function sendInvestors() internal onlyProtocol {}
-
-    //test only
-    function setContractBalance(uint256 _x) public {
-        contractBalance = _x;
-    }
+    function poolFundsForRfC(uint256 _RfCid) internal 
 
     function setLocked(address _user, uint256 _amount) private onlyFundsManager {
-        // lock eth (swapped in DAI) for 15 days
+        // lock eth (swapped in DAI) for 30 days
 
         //create correct variables for that
         require(userHasSecurityDeposit[_user][_amount] != true, "The security deposit is already met");
 
+        //funds[_user] = sent to escrow
 
     }
 
@@ -135,21 +154,21 @@ contract FundsManager {
 
     /** Interactions with RequestForContent contract: **/
 
-    function getRfCid(address _investorOrCP, uint256 _id) external {
+    function getRfCid(address _investorOrCP, uint256 _id) external view {
         require(id >= 0, "id is invalid number");
 
         return RfC.getRfCid(_id);
     }
 
+    function commitFundsToRfC(uint256 _id) internal onlyInvestors onlyCPs {
+        // way to lock/commit an amount to a specific NFT
 
+    }
 
     //Default functions in case of accidental crypto sent to the contract => revert
 
-        fallback() external payable {
-        
+    fallback() external payable {
+        revert();    
     }
-
-
-
 
 }

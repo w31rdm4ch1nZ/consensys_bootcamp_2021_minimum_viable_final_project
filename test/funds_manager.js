@@ -22,7 +22,7 @@ contract("FundsManager", function (accounts) {
     const contractInitialBalance = await fmInstance.getContractBalance.call();
     assert.equal(contractInitialBalance, 0, "Initial state/balance should be 0");
 
-  })
+  });
 
   describe("Functionality", () => {
 
@@ -48,7 +48,7 @@ contract("FundsManager", function (accounts) {
 
     assert.equal(newContractBalance, 3, `3 was not added`)
     })
-  })
+  });
 
 
 });

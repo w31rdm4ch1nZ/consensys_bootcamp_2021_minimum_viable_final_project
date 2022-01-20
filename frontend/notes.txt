@@ -1,1 +1,54 @@
 Hosted decentralized instance:  use fleek (https://fleek.co/) 
+
+>>> One thing easy to implement in your backend that you did not so far is a fee going to the protocol treasury (even if atm it won't be used, just
+demonstrates the emerging idea to have this protocol to be autonomous and the will to venture in the Protocol Controlled Value, eg. Fei Protocol 
+and OlympuDAO that, from my standpoint has the potential to disrupt the foundational platform business model and make decentralization sustainable
+in other areas than financial applications). Ok, back to the point....<<<
+
+User flows main transactions [ends up being a detailed description of the overwhole current flow of the dapp = clearly distinguish txs in web3.js 
+to be written] - that are to be implemented through web3.js API to communicate between the fontend and the backend 
+(the tests can be written in paralel):
+
+- send funds and give allowance to FundsManager contract to use the funds (check recomended pattern for that in mm basic tuto) at first for a "safetyDeposit", 
+whatever are the next actions the user want to pursue with the protocol, this is a mandatory step to interact (inlcuding a 30 days locked funds timframe);
+    - then, get updates on:
+        - successful tx that pops up in the web UI of the user;
+        - the user can see (displayed in the frontend) the amount deposited and locked (next will be to add funds allocated to a specific RfC token);
+
+- user-investor can decide to allocate the "safetyDeposit" fixed amount to a specific RfC in validation status;
+        - a message is sent back if the "safetyDeposit" is already allocated to an RfC being processed/pending to tell the user she needs to put 
+        the same amount under escrow to signal her interest for the RfC;
+        - the amount is sent, locked, and then FundsManager take over the code execution flow (resulting in minting the RfC); 
+
+- Another user account is used as mimicking a Content Provider selected on the amount she defines as needed for the RfC production and delivery 
+(extremely simplified user flow for the CP at this stage):
+    - A CP will have to add to the "safetyDeposit" amount a fraction of the total amount
+    (that would eventually be modeled following some financial analysis that I did not do...) that is locked and subject (allowance given to the FundsManager contract
+    again - call same function) to be slashed (sent back to the investors as a form of insurance + a small part goes to the protocol) if the promise of 
+    delivery were to fail;
+
+- Investors use ETH-DAI to participate. Once the threshold is reached, the RfC status is updated to "Funded/In production".
+    - The investors can continue to add funds on the timeframe for the vote, defined for now arbitrarily to 24 hours, (so it does not become a race - with
+    all the unwanted side-effects we can expect - and allow everyone who wants to contribute, and/or get the benefit of future acces to content,to do so).
+    The amount > to the threshold defined by the CP is used to farm, or put at work in other DeFi protocols, to earn on it - returned to investors - protocl 
+    small cut.
+    - Once the timeframe closes, it then calls a function that takes in input the total amount allocated by investors to the RfC, and returns the shares
+    to the investors under the form of an ERC20 token named after the RfC token (very much alike the LP shares token in the Uniswap protocol).
+    - The amount required by the CP is used to be withdrawn by the CP for the content creation (eventually it obviously cannot work like that and will be replaced by
+    the CP making a loan on the RfC fund, and the funds are ... TBD, + storage and delivery/access).
+
+- In our current minimal version of the project, only an art NFT collectible is enabled among the other options that could be used.
+
+The CP signal the content is ready and respects the RfC set of tokenized requirements:
+    - A (simple) way to signal that the RfC is now completed that leads to update investors dashboards RfC status to "Ready for acceptance";
+        - One scenario where it fails will be simulated, and the funds are then distributed to the investors;
+        - One where it is successful:
+            - The art NFT is distributed to the user-investors;
+            - CP is payed with a ratio of the RfC investors funds;
+            - + gets back her deposit [and can withdraw if she wnats the safetyDeposit (after 30 days - so any trouble with the content couold 
+            eventually be brought by investors and lead to a claim for some)];
+            - The RfC token is sent to the NFTEscrow contract (not burned);
+
+Dashboards updates:
+TBD
+            

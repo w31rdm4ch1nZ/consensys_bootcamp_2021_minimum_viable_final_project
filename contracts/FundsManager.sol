@@ -21,12 +21,12 @@ contract FundsManager {
     
     uint256 private contractBalance = address(this).balance; // to be used in functions where the state can be changed (limiting the scope through private)
     
-    uint256 private amount;
+    //uint256 private amount;
 
     uint256 private rfcFund;
 
     // used in SimpleInvestorsVote:
-    uint256 public immutable securityDeposit = 0.1; // arbitrary value for now in eth (should be expressed in $stablecoin eventually - next iteration)
+    uint256 private securityDeposit = 0.1; // arbitrary value for now in eth (should be expressed in $stablecoin eventually - next iteration)
 
     // required for all users of the protocol
     mapping (address => mapping(uint256 => bool)) private madeSafeDeposit;
@@ -101,6 +101,10 @@ contract FundsManager {
     //Returns balance of InvestorEscrow contract
     function getContractBalance() public view returns(uint){
         return address(this).balance;
+    }
+
+    function getRequireSDAmount() private view returns(uint256) {
+        return securityDeposit;
     }
 
     function depositETHandLock() external payable override userHasSecurityDeposit {

@@ -1,79 +1,27 @@
 import MetaMaskOnboarding from '@metamask/onboarding'
 
+var Web3 = require('web3');
+var web3 = new Web3(Web3.givenProvider || "https://ropsten.infura.io/v3/" + INFURA_ID);
 
-const currentUrl = new URL(window.location.href)
-const forwarderOrigin = 'http://127.0.0.1:5501'
+//Contract.setProvider('ws://localhost:8545');
 
-  //Created check function to see if the MetaMask extension is installed
-  const isMetaMaskInstalled = () => {
-    //Have to check the ethereum binding on the window object to see if it's installed
-    const { ethereum } = window;
-    return Boolean(ethereum && ethereum.isMetaMask);
-  };
+var fmContract = new web3.eth.Contract(jsonInterfaceFM, addressFM);
+var rfcContract = new web3.eth.Contract(jsonInterfaceRfC, addressRfC);
+//var voteContract = new web3.eth.Contract(jsonInterfaceVote, addressVote);
+//var contentSharesERC20Contract = new web3.eth.Contract(jsonInterfaceERC20, addressERC20); 
 
-  /****
-   * 
-   *  *  * Home page of the Dapp
-   *  
-   ****/
+var eth = new Web3.eth.Contract(abi, ETH);
 
-  // Dapp Status Section
-  const networkDiv = document.getElementById('network')
-  const chainIdDiv = document.getElementById('chainId')
-  const accountsDiv = document.getElementById('accounts')
+const currentUrl = new URL(window.location.href);
+const forwarderOrigin = 'http://127.0.0.1:5500';
 
-  // Basic Actions Section
-  const onboardButton = document.getElementById('connectButton')
-  const getAccountsButton = document.getElementById('getAccounts')
-  const getAccountsResults = document.getElementById('getAccountsResult')
+//Created check function to see if the MetaMask extension is installed
+const isMetaMaskInstalled = () => {
+  //Have to check the ethereum binding on the window object to see if it's installed
+  const { ethereum } = window;
+  return Boolean(ethereum && ethereum.isMetaMask);
+};
 
-  // Safe deposit (required for all users to have their txs accepted/interact with the protocol)
-
-  /****
-   * 
-   *  *  * REQUEST FOR CONTENT SECTION for RfC Dashboard
-   *  
-   ****/
-
-  // Go to make a proposal
-  const urlToRfCProposal = document.getElementById('goToRfCProposal')
-
-
-  /****
-   * 
-   *  *  * CONTENT PROVIDER SECTION for CP Dashboard
-   *  
-   ****/
-
-  /*
-  const deployButton = document.getElementById('deployButton')
-  const depositButton = document.getElementById('depositButton')
-  const withdrawButton = document.getElementById('withdrawButton')
-  const contractStatus = document.getElementById('contractStatus')
-  */
-
-  // Send Eth Section for Investor (pass the ID # of the RfC the user wants to invest in)
-  const sendButton = document.getElementById('investRfCidX')
-
-
-  /****
-   *  
-   * * * INVESTOR DASHBOARD SECTION for Investor Dashboard
-   * 
-   ****/
-
-  
-
-
-  const idRfC = document.getElementById('RfCid')
-  const investEth = document.getElementById('amountInvestedEth')
-  const investButton = document.getElementById('investButton')  // call function in FundsManager contract with parameters passed
-
-  // Display information regarding your investment in a Request for Content:
-  //  Implies to read states form the contracts + updates with events in the contract:
-  const investmentsList = document.getElementById('investmentsList')  //to add in the frontend
-  const inputRFCidToDisplay = document.getElementById('RfCidToDisplay')
-  const displayInvestmentInfoButton = document.getElementById('displayInvestmentInfoButton')
 
 const initialize = () => {
   //You will start here 
@@ -84,7 +32,7 @@ const initialize = () => {
   let requestForContentContract
   // other contracts needed
   let accountButtonsInitialized = false
- 
+
   const accountButtons = [
     sendButton,
     investButton,
@@ -176,7 +124,7 @@ const initialize = () => {
       web3.eth.sendTransaction({
         from: accounts[0],
         to: /*fundsManagerContract address*/0x9F9b47D1c380e94a35332866a7ad67abE0536AFF,
-        value: '0x29a2241af62c0000',
+        value: 0.1,
         gas: 21000,
         gasPrice: 20000000000,
       }, (result) => {
@@ -265,6 +213,89 @@ const initialize = () => {
   MetaMaskClientCheck();
 }
 
+  /****
+   * 
+   *  *  * Home page of the Dapp
+   *  
+   ****/
+
+  // Dapp Status Section
+  const networkDiv = document.getElementById('network');
+  const chainIdDiv = document.getElementById('chainId');
+  const accountsDiv = document.getElementById('accounts');
+
+  // Basic Actions Section
+  const onboardButton = document.getElementById('connectButton');
+  const getAccountsButton = document.getElementById('getAccounts');
+  const getAccountsResults = document.getElementById('getAccountsResult');
+
+  // Safe deposit (required for all users to have their txs accepted/interact with the protocol)
+  const safetyDepositSubmit = document.getElementById('safetyDeposit');
+  const membershipActiveStatus = document.getElementById('membershipActiveStatus');
+  const requiredEthForSD = await myContract.getRequireSDAmount().call()[0];
+  const sendEth = requiredEthForSD * 1.1;      // to force to send slightly more than the estimate to limit reverted txs
+
+  safetyDepositSubmit.onclick = submitMMSafeDeposit;
+
+  const submitMMSafeDeposit = () => {
+    
+    //allow transfer of 0.1 to be signed by active user account
+    fmContract.methods.approve(contractAddress, sendEth).send({from: userAddress}, 
+      function(err, transactionHash) {
+          //some code
+      });
+
+    //send 0.1 eth to FundsManager contract
+
+    safetyDepositSubmit.disabled = true;
+    membershipActiveStatus.innerHTML = 'Membership active';
+  }
+
+  /****
+   * 
+   *  *  * REQUEST FOR CONTENT SECTION for RfC Dashboard
+   *  
+   ****/
+
+  // Go to make a proposal
+  const urlToRfCProposal = document.getElementById('goToRfCProposal')
+
+
+  /****
+   * 
+   *  *  * CONTENT PROVIDER SECTION for CP Dashboard
+   *  
+   ****/
+
+  /*
+  const deployButton = document.getElementById('deployButton')
+  const depositButton = document.getElementById('depositButton')
+  const withdrawButton = document.getElementById('withdrawButton')
+  const contractStatus = document.getElementById('contractStatus')
+  */
+
+  // Send Eth Section for Investor (pass the ID # of the RfC the user wants to invest in)
+  const sendButton = document.getElementById('investRfCidX')
+
+
+  /****
+   *  
+   * * * INVESTOR DASHBOARD SECTION for Investor Dashboard
+   * 
+   ****/
+
+  
+
+
+  const idRfC = document.getElementById('RfCid')
+  const investEth = document.getElementById('amountInvestedEth')
+  const investButton = document.getElementById('investButton')  // call function in FundsManager contract with parameters passed
+
+  // Display information regarding your investment in a Request for Content:
+  //  Implies to read states form the contracts + updates with events in the contract:
+  const investmentsList = document.getElementById('investmentsList')  //to add in the frontend
+  const inputRFCidToDisplay = document.getElementById('RfCidToDisplay')
+  const displayInvestmentInfoButton = document.getElementById('displayInvestmentInfoButton')
 
 
 window.addEventListener('DOMContentLoaded', initialize)

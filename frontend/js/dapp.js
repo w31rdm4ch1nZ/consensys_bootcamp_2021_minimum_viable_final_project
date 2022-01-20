@@ -3,12 +3,14 @@ import MetaMaskOnboarding from '@metamask/onboarding'
 var Web3 = require('web3');
 var web3 = new Web3(Web3.givenProvider || "https://ropsten.infura.io/v3/" + INFURA_ID);
 
-//Contract.setProvider('ws://localhost:8545');
-
 var fmContract = new web3.eth.Contract(jsonInterfaceFM, addressFM);
 var rfcContract = new web3.eth.Contract(jsonInterfaceRfC, addressRfC);
 //var voteContract = new web3.eth.Contract(jsonInterfaceVote, addressVote);
 //var contentSharesERC20Contract = new web3.eth.Contract(jsonInterfaceERC20, addressERC20); 
+
+// To define once deployed on the testnet of your choice:
+//abi = 
+// address =
 
 var eth = new Web3.eth.Contract(abi, ETH);
 

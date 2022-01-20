@@ -28,9 +28,10 @@ contract FundsManager {
     // used in SimpleInvestorsVote:
     uint256 public immutable securityDeposit = 0.1; // arbitrary value for now in eth (should be expressed in $stablecoin eventually - next iteration)
 
-    mapping (address => mapping(uint256 => bool)) madeSafeDeposit;
+    // required for all users of the protocol
+    mapping (address => mapping(uint256 => bool)) private madeSafeDeposit;
 
-    mapping (address => mapping (uint256 => bool)) private securityDepositIsCommitedToAnRfC;
+    mapping (address => mapping (uint256 => bool)) private securityDepositIsCommittedToAnRfC;
 
     uint256 public immutable MIN_ESCROW_TIME = 30 days;
 
@@ -135,7 +136,9 @@ contract FundsManager {
         emit DepositETH(_userDepositing, msg.value);
     }
 
-    function poolFundsForRfC(uint256 _RfCid) internal 
+    function poolFundsForRfC(uint256 _RfCid) internal returns(RfCPool rfcPool) {
+        
+    }
 
     function setLocked(address _user, uint256 _amount) private onlyFundsManager {
         // lock eth (swapped in DAI) for 30 days

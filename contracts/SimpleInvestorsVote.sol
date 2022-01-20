@@ -41,8 +41,8 @@ contract SimpleInvestorVote {
                 //check if amount includes a safeDeposit amount
                 require(_amount >= instanceFundsManagerContract.securityDeposit);
                 balance[_investor] -= _amount;
+                instanceFundsManagerContract.
 
-                
                 instanceFundsManagerContract.rfcFund += 300;
             }
 

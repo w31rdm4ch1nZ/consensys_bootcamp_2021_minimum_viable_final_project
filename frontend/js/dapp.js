@@ -11,6 +11,11 @@ const forwarderOrigin = 'http://127.0.0.1:5501'
     return Boolean(ethereum && ethereum.isMetaMask);
   };
 
+  /****
+   * 
+   *  *  * Home page of the Dapp
+   *  
+   ****/
 
   // Dapp Status Section
   const networkDiv = document.getElementById('network')
@@ -21,6 +26,8 @@ const forwarderOrigin = 'http://127.0.0.1:5501'
   const onboardButton = document.getElementById('connectButton')
   const getAccountsButton = document.getElementById('getAccounts')
   const getAccountsResults = document.getElementById('getAccountsResult')
+
+  // Safe deposit (required for all users to have their txs accepted/interact with the protocol)
 
   /****
    * 
@@ -55,7 +62,9 @@ const forwarderOrigin = 'http://127.0.0.1:5501'
    * 
    ****/
 
-  // Investor Dashboard Section
+  
+
+
   const idRfC = document.getElementById('RfCid')
   const investEth = document.getElementById('amountInvestedEth')
   const investButton = document.getElementById('investButton')  // call function in FundsManager contract with parameters passed

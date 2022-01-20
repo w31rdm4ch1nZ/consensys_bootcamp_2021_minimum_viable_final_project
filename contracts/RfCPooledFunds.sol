@@ -10,8 +10,10 @@ contract RfCPooledFunds {
     // and also the share of those by an individual account  in that pooled fund.
 
     function poolFundsForRfC() external onlyFundsManager /*see for creating a few roles if you have time for that */ {
-        
+
     } 
+
+    
 
 
 }

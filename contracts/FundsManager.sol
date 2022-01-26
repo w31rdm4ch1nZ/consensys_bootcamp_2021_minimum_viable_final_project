@@ -1,14 +1,24 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import "@openzepplin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./RequestForContent.sol";
+// for defining role-based access control:
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract FundsManager {
 
+    bytes32 public constant MEMBERS_W_SAFETY_DEPOSIT = keccak256("MEMBERS_W_SAFETY_DEPOSIT");
+
     address public user;
+    //eventually make those 2 state variable the same... => can encompass EOA and contract addresses, no pb.
+    address public addr;
+
+    // allows to track the amount of one investor in one RfC (can have several investments):
+    // investor address => RfCid => amount   
+    mapping(address => mapping(uint256 => uint256)) public investorAmountToSpecificRfC;
 
     mapping(address => mapping(address => uint)) public allowance;
     
@@ -23,11 +33,11 @@ contract FundsManager {
     uint256 private securityDeposit = 0.1; // arbitrary value for now in eth (should be expressed in $stablecoin eventually - next iteration)
 
     // required for all users of the protocol
-    mapping (address => mapping(uint256 => bool)) private madeSafeDeposit;
+    mapping (address => mapping(uint256 => bool)) private safeDepositMade;
 
-    mapping(bool => uint256) private amountUserDepositCommitedToTheProtocol;
+    //mapping(bool => uint256) private amountUserDepositCommitedToTheProtocol;
 
-    mapping (address => mapping (uint256 => bool)) private securityDepositIsCommittedToAnRfC;
+    //mapping (address => mapping (uint256 => bool)) private securityDepositIsCommittedToAnRfC;
 
     uint256 public immutable MIN_ESCROW_TIME = 30 days;
 
@@ -45,17 +55,6 @@ contract FundsManager {
     // => this value should be returned to this contract by the contract implementing the proposal logic
     bool public hasPassed = false;
 
-    //mapping (address => mapping (address => bool)) isIn
-
-    enum ParticipantType {
-        isInvestor,
-        isContentProvider,
-        isUser
-    }
-
-    // value should be assigned in a function called specifcally and only in a context where the caller is an investor (send ether for a RfCid specified as input)
-    ParticipantType userType = ParticipantType.isUser;
-
     modifier hasFunds{
         require(user.msg.value >= msg.value, "The user has not enough funds for the tx to happen");
         _;
@@ -66,23 +65,12 @@ contract FundsManager {
         _;
     }
 
-    // not sure I need it now as I will be using the Owner access pattern
-    modifier onlyInvestors{
-        require(userType == ParticipantType.isInvestor, "The user has to be an investor");
-        _;
-    }
 
-    modifier onlyCPs{
-        require(userType == ParticipantType.isContentProvider, "The user has to be an investor");
-        _;
-    }
-
-    modifier onlyFundsManager{
-        require(user == address(this), "This sate modification can only be triggered by the FundsManager contract.");
-        _;
-    }
+    event madeSafeDeposit(address indexed member);
 
     event DepositETH(address userDepositing, uint deposit);
+
+    event withdrawSafeDeposit(address investor, bool success);
 
     constructor()  {
         //test pre-game (to disappear)
@@ -106,13 +94,14 @@ contract FundsManager {
         return userSecurityDepositStatus;
     }
 
-    function getRfCFund(uint256 _id, address _user) public view returns(uint256) {
+    function getRfCFund(uint256 _id, address _user, address _RFCToken) public view returns(uint256) {
         require(_id >= 0, "not a valid id");
         require(_tokenAddr != 0, "address can't be 0, the contract has to exist already");
         require(_user != 0, "invalid EOA");
-
+        address rfcTokenAddress;
         rfcTokenAddress = getRfCTokenAddress(_id);
-        
+
+        //TO DO: get the amount of funds allocated to a specific RfC (maybe you don't need the token address but its id is enough?)
     }
 
     function getRfCTokenAddress(uint256 _id) public view {
@@ -134,10 +123,7 @@ contract FundsManager {
 
     //     address(this).balance += msg.value;
 
-    //     hasSafetyDeposit[msg.sender] = true;
-
-    //     if (securityDepositIsCommitedToAnRfC == false) {    
-                
+    //     hasSafetyDeposit[msg.sender] = true;withdrawSafeDeposit(msg.sender, true);
     //         rfcFund += _investor[safeDeposit];
     //         //_investor.
     //     }
@@ -159,11 +145,41 @@ contract FundsManager {
     //     emit DepositETH(_userDepositing, msg.value);
     // }
 
-    function poolFundsForRfC(uint256 _RfCid) internal returns(RfCPool rfcPool) {
-        
+    function investETH() external payable onlyMember {
+
+    } 
+
+
+    function safeDeposit(address _member) public {
+        _setupRole(MEMBERS_W_SAFETY_DEPOSIT, member);
+
+         
+        emit madeSafeDeposit(_member);
+    } 
+
+    function initiateWithdrawSafeDeposit() external onlyMember {
+
+        //starts a timer that last about 30 days (check the ) that once done allow direct withdrawal (simplest form I can think of now)
+
+        // if timer finished, then withdraw, then once withdraw succesfully, revoke membership (that might be a tricky one in terms of
+        //  order and the access control you've implemented that way... anyway do it like that for now)
+
+        //change status to non-member:
+        _revokeRole(MEMBERS_W_SAFETY_DEPOSIT, member);
+
+        //events: withdraw success or not, and then membership stopped 
+        emit withdrawSafeDeposit(msg.sender, true);
     }
 
-    function setLocked(address _user, uint256 _amount) private onlyFundsManager {
+    function getPooledRfCamount(uint256 _RfCid) public view returns(uint256 rfcPoolAmount) {
+        // TO DO
+    }
+
+    function allocateFundsToRfC(address _user,uint256 _id) public onlyMember returns(uint256 totalAmount) {
+
+    }
+
+    function setLocked(address _user, uint256 _amount) private {
         // lock eth (swapped in DAI) for 30 days
 
         //create correct variables for that
@@ -177,6 +193,11 @@ contract FundsManager {
         //call it from another function in this contract either once condition for unlock funds are met, or because the expiration date is reached
     }
 
+    function withdrawETH() external onlyMember {
+
+
+    }
+
 
     /** Interactions with RequestForContent contract: **/
 
@@ -186,9 +207,16 @@ contract FundsManager {
         return RfC.getRfCid(_id);
     }
 
-    function commitFundsToRfC(uint256 _id) internal onlyInvestors onlyCPs {
+    function setRfCIdFund(uint256 _id) public {
+        //sum of all investors' deposits for a certain RfC
+        
+    }
+
+    function commitFundsToRfC(uint256 _id, uint256 _amount) internal  {
         // way to lock/commit an amount to a specific NFT
 
+        //sum of all funds allocated to an RfC token:
+        return allocateFundsToRfC();
     }
 
     //Default functions in case of accidental crypto sent to the contract => revert

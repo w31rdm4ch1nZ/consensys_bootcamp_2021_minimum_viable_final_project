@@ -12,26 +12,24 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+//import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Arrays.sol";
 
 // for defining role-based access control:
-import "@openzeppelin/contracts/access/Roles.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
-
-contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {          
+contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, AccessControl {          
 
     using Counters for Counters.Counter;
     using SafeMath for uint256;
-    using Roles for Roles.Role;
 
     Counters.Counter private _tokenIdTracker;
 
-    Roles.Role private _minters;
-    // It is a role that is aimed at allowing FundsManager contract to make calls, avoiding any direct users and others (potentially malicious contract)
+    //bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    // It is a role that is aimed at allowing FundsManager contract to make inter-contracts calls, avoiding any direct users and others (potentially malicious contract)
     //  to call the functions on which I define a modifier to only allow this role to be the caller:
-    Roles.Role private _approvedFundsManagerInstance;
+    bytes32 public constant FUNDS_MANAGER_ROLE = keccak256("FUNDS_MANAGER_ROLE");
 
     address private caller;
 
@@ -217,9 +215,9 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Ownabl
     //     //TO DO
     // }
 
-    event RfCProposal();
+    event RfCProposal(address proposer, bool success);
 
-    event RfCMinted();
+    event RfCMinted(address indexed RfCToken, uint256 RfCidCounter);
 
     //event RfCCPselected();
 
@@ -235,23 +233,28 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Ownabl
 
      //modifiers:
 
-    modifier OnlyApprovedAcccounts{
-        require(caller = _approvedFundsManagerInstance, "caller is not authorized");
+    modifier OnlyApprovedFundsManager{
+        require(caller = FUNDS_MANAGER_ROLE, "caller is not the authorized FundsMananger contract");
         _;
     }
 
     event SucessfullyMinted(address RfC, uint256 id, uint256 time);
 
-    constructor() ERC721("RequestForContent", "RFC") {}
+    // Definitively better if you can do all that with ERC1155.... Otherwise get back to Ownable pattern
+    constructor(address fmContract) ERC721("RequestForContent", "RFC") {
+        // Grant the minter role to the FundsManager contract (oviously redundant at this point with our other role, but aiming at 
+        //  practicing the pattern so I digest it and reuse it in the future)
+        _setupRole(FUNDS_MANAGER_ROLE, fmContract);
+    }
 
     function _baseURI() internal pure override returns (string memory) {
         return "ipfs://blabla_masterpiece_genart_by_supadupaNFTstar.mp4";
     }
 
 
-    function safeMint(address to) external onlyOwner {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+    function safeMint(address to) external OnlyApprovedFundsManager {
+        uint256 tokenId = _tokenIdTracker.current();
+        _tokenIdTracker.increment();
         _safeMint(to, tokenId);
 
         emit SucessfullyMinted(to, tokenId, now);   // "now" gives the time in unix standard = make a conversion in your js
@@ -298,7 +301,7 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Ownabl
 
         // set struct with the values set in setEnums:
         RequestForContentStruct.When = when;
-        RequestForContentStruct.ContentTypeDelivered = _contentType;
+        //RequestForContentStruct.ContentTypeDelivered = _contentType;
         //...
 
     } 

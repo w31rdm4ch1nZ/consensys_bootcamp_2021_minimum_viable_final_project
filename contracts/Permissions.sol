@@ -4,7 +4,7 @@
 // and yet add some flexibility and a concrete series of example that allow me to adapt it: 
 //  https://github.com/fei-protocol/fei-protocol-core/blob/develop/contracts/core/Permissions.sol
 
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "./IPermissions.sol";

@@ -10,8 +10,6 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract FundsManager {
 
-    bytes32 public constant MEMBERS_W_SAFETY_DEPOSIT = keccak256("MEMBERS_W_SAFETY_DEPOSIT");
-
     address public user;
     //eventually make those 2 state variable the same... => can encompass EOA and contract addresses, no pb.
     address public addr;
@@ -95,20 +93,6 @@ contract FundsManager {
         return address(this).balance;
     }
 
-    /// @notice checks if address is a governor
-    /// @param _address address to check
-    /// @return true _address is a governor
-    // only virtual for testing mock override
-    function isMember(address _address)
-        public
-        view
-        virtual
-        override
-        returns (bool)
-    {
-        return hasRole(GOVERN_ROLE, _address);
-    }
-
     // get security deposit status for a given account
     function getSDstatus(address _user) public view returns(bool) {
         
@@ -171,10 +155,21 @@ contract FundsManager {
     } 
 
 
-    function safeDeposit(address _member) public {
-        _setupRole(MEMBERS_W_SAFETY_DEPOSIT, member);
+    function safeDepositForMembership(address _member) public payable {
+        // to think about: _setupRole(MEMBERS_W_SAFETY_DEPOSIT, member);
+        require(balance[msg.sender] >= 0, "balance must be positive");  // don't think it is useful...
+        require(msg.value == 0.1 ether, "The amount of 0.1 ether is not reached");  // be ready for your exection to err here
+                                                                                    // simply bc more ether has been sent, and so it reverts
+                                                                                    // => how to make sure to maximize successful txs for users?
+                                                                                    //  so they get their funds back in case too much is sent?
+        //try {
+        balance[msg.sender] -= 0.1 ether;
+        //test if you need this (as it will only be ether for now, you should not)
+        //address(this).balance += msg.value;
+        //}
+        //catch {revert()}
+        setLock(msg.sender, 0.1 ether);
 
-         
         emit madeSafeDeposit(_member);
     } 
 
@@ -200,7 +195,8 @@ contract FundsManager {
 
     }
 
-    function setLocked(address _user, uint256 _amount) private {
+    // again by seting the scope to private I only allow a function from this contract (does not mean it can't be abused if not careful...)
+    function lockSafeDeposit(address _user, uint256 _amount, uint256 _unlockDate) private onlyFMProxy {
         // lock eth (swapped in DAI) for 30 days
 
         //create correct variables for that

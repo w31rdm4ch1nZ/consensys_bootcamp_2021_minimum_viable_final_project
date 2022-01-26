@@ -4,6 +4,13 @@
 // and yet add some flexibility and a concrete series of example that allow me to adapt it: 
 //  https://github.com/fei-protocol/fei-protocol-core/blob/develop/contracts/core/Permissions.sol
 
+/**
+
+    >>> Update comments on parmas and functions
+
+ */
+
+
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
@@ -12,20 +19,19 @@ import "./IPermissions.sol";
 /// @title Access control module for Core
 /// @author Fei Protocol
 contract Permissions is IPermissions, AccessControlEnumerable {
-    bytes32 public constant override BURNER_ROLE = keccak256("BURNER_ROLE");
     bytes32 public constant override MINTER_ROLE = keccak256("MINTER_ROLE");
-    bytes32 public constant override PCV_CONTROLLER_ROLE = keccak256("PCV_CONTROLLER_ROLE");
-    bytes32 public constant override GOVERN_ROLE = keccak256("GOVERN_ROLE");
+    bytes32 public constant override MEMBER_ROLE = keccak256("MEMBER_ROLE");
+    bytes32 public constant FUNDS_MANAGER_ROLE = keccak256("FUNDS_MANAGER_ROLE");
     bytes32 public constant override GUARDIAN_ROLE = keccak256("GUARDIAN_ROLE");
+    //bytes32 public constant override AUTONOMOUS_PROTOCOL_ROLE = keccak256("AUTONOMOUS_PROTOCOL_ROLE");
 
     constructor() {
         // Appointed as a governor so guardian can have indirect access to revoke ability
         _setupGovernor(address(this));
 
         _setRoleAdmin(MINTER_ROLE, GOVERN_ROLE);
-        _setRoleAdmin(BURNER_ROLE, GOVERN_ROLE);
-        _setRoleAdmin(PCV_CONTROLLER_ROLE, GOVERN_ROLE);
-        _setRoleAdmin(GOVERN_ROLE, GOVERN_ROLE);
+        _setRoleAdmin(MEMBER_ROLE, GOVERN_ROLE);
+        _setRoleAdmin(FUNDS_MANAGER_ROLE, GOVERN_ROLE);
         _setRoleAdmin(GUARDIAN_ROLE, GOVERN_ROLE);
     }
 
@@ -62,18 +68,24 @@ contract Permissions is IPermissions, AccessControlEnumerable {
 
     /// @notice grants burner role to address
     /// @param burner new burner
-    function grantBurner(address burner) external override onlyGovernor {
-        grantRole(BURNER_ROLE, burner);
+    // function grantBurner(address burner) external override onlyGovernor {
+    //     grantRole(BURNER_ROLE, burner);
+    // }
+
+    /// @notice grants member role to address
+    /// @param member new member
+     function grantMember(address member) external override onlyGovernor {
+        grantRole(MEMBER_ROLE, member);
     }
 
-    /// @notice grants controller role to address
+    /// @notice grants Funds Manager Proxy role to address
     /// @param pcvController new controller
-    function grantPCVController(address pcvController)
+    function grantFMProxy(address fmProxy)
         external
         override
         onlyGovernor
     {
-        grantRole(PCV_CONTROLLER_ROLE, pcvController);
+        grantRole(FUNDS_MANAGER_ROLE, fmProxy);
     }
 
     /// @notice grants governor role to address
@@ -96,18 +108,18 @@ contract Permissions is IPermissions, AccessControlEnumerable {
 
     /// @notice revokes burner role from address
     /// @param burner ex burner
-    function revokeBurner(address burner) external override onlyGovernor {
-        revokeRole(BURNER_ROLE, burner);
+    function revokeMember(address member) external override onlyGovernor {
+        revokeRole(MEMBER_ROLE, member);
     }
 
-    /// @notice revokes pcvController role from address
+    /// @notice revokes FMProxy role from address
     /// @param pcvController ex pcvController
-    function revokePCVController(address pcvController)
+    function revokeFMProxy(address fmProxy)
         external
         override
         onlyGovernor
     {
-        revokeRole(PCV_CONTROLLER_ROLE, pcvController);
+        revokeRole(FUNDS_MANAGER_ROLE, fmProxy);
     }
 
     /// @notice revokes governor role from address
@@ -144,23 +156,23 @@ contract Permissions is IPermissions, AccessControlEnumerable {
         return hasRole(MINTER_ROLE, _address);
     }
 
-    /// @notice checks if address is a burner
+    /// @notice checks if address is a burmemberner
     /// @param _address address to check
-    /// @return true _address is a burner
-    function isBurner(address _address) external view override returns (bool) {
-        return hasRole(BURNER_ROLE, _address);
+    /// @return true _address is a member
+    function isMember(address _address) external view override returns (bool) {
+        return hasRole(MEMBER_ROLE, _address);
     }
 
-    /// @notice checks if address is a controller
+    /// @notice checks if address is a FMProxy
     /// @param _address address to check
     /// @return true _address is a controller
-    function isPCVController(address _address)
+    function isFMProxy(address _address)
         external
         view
         override
         returns (bool)
     {
-        return hasRole(PCV_CONTROLLER_ROLE, _address);
+        return hasRole(FUNDS_MANAGER_ROLE, _address);
     }
 
     /// @notice checks if address is a governor

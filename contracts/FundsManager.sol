@@ -65,6 +65,13 @@ contract FundsManager {
         _;
     }
 
+    modifier onlyMember() {
+        require(
+            isMember(msg.sender),
+            "Permissions: Caller does not have a safe deposit and active membership"
+        );
+        _;
+    }
 
     event madeSafeDeposit(address indexed member);
 
@@ -86,6 +93,20 @@ contract FundsManager {
     //Returns balance of InvestorEscrow contract
     function getContractBalance() public view returns(uint){
         return address(this).balance;
+    }
+
+    /// @notice checks if address is a governor
+    /// @param _address address to check
+    /// @return true _address is a governor
+    // only virtual for testing mock override
+    function isMember(address _address)
+        public
+        view
+        virtual
+        override
+        returns (bool)
+    {
+        return hasRole(GOVERN_ROLE, _address);
     }
 
     // get security deposit status for a given account

@@ -7,11 +7,11 @@
 pragma solidity ^0.8.0;
 
 /// @title Permissions Read interface
-/// @author Fei Protocol
+/// @author w31rdm4ch1nz
 interface IPermissionsRead {
     // ----------- Getters -----------
 
-    function isBurner(address _address) external view returns (bool);
+    function isMember(address _address) external view returns (bool);
 
     function isMinter(address _address) external view returns (bool);
 
@@ -19,5 +19,5 @@ interface IPermissionsRead {
 
     function isGuardian(address _address) external view returns (bool);
 
-    function isPCVController(address _address) external view returns (bool);
+    function isFMProxy(address _address) external view returns (bool);
 }

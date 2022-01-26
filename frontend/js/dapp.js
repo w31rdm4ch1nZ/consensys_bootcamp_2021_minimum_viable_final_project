@@ -1,7 +1,6 @@
-import MetaMaskOnboarding from '@metamask/onboarding'
-
 var Web3 = require('web3');
-var web3 = new Web3(Web3.givenProvider || "https://ropsten.infura.io/v3/" + INFURA_ID);
+
+var web3 = new Web3("ws://127.0.0.1:8545" || "https://ropsten.infura.io/v3/" + INFURA_ID);
 
 var fmContract = new web3.eth.Contract(jsonInterfaceFM, addressFM);
 var rfcContract = new web3.eth.Contract(jsonInterfaceRfC, addressRfC);
@@ -14,31 +13,48 @@ var rfcContract = new web3.eth.Contract(jsonInterfaceRfC, addressRfC);
 
 var eth = new Web3.eth.Contract(abi, ETH);
 
-const currentUrl = new URL(window.location.href);
-const forwarderOrigin = 'http://127.0.0.1:5500';
+let accounts
 
-//Created check function to see if the MetaMask extension is installed
-const isMetaMaskInstalled = () => {
-  //Have to check the ethereum binding on the window object to see if it's installed
-  const { ethereum } = window;
-  return Boolean(ethereum && ethereum.isMetaMask);
-};
 
+
+// Safe deposit (required for all users to have their txs accepted/interact with the protocol)
+const membershipActiveStatusHTML = document.getElementById('membershipActiveStatus');
+const safetyDepositSubmit = document.getElementById('safetyDeposit');
+const membershipActiveStatus = document.getElementById('membershipActiveStatus');
+
+const requiredEthForSD = await myContract.getRequireSDAmount().call()[0];
+const requiredEthForSD = 0.1;
+const sendEth = requiredEthForSD * 1.1;      // to force to send slightly more than the estimate to limit reverted txs
+
+
+const ethEnabled = async () => {
+  if (window.ethereum) {
+    await window.ethereum.request({method: 'eth_requestAccounts'});
+    window.web3 = new Web3(window.ethereum);
+    return true;
+  }
+  return false;
+}
+
+
+async function getAccount() {
+  accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+}
 
 const initialize = () => {
   //You will start here 
-  //const onboardButton = document.getElementById('connectButton');
+  const onboardButton = document.getElementById('connectButton');
 
-  let accounts
-  let fundsManagerContract
-  let requestForContentContract
-  // other contracts needed
+
+
   let accountButtonsInitialized = false
 
   const accountButtons = [
+    getAccountsButton,
+    safetyDepositSubmit,
     sendButton,
     investButton,
-    displayInvestmentInfoButton,
+    displayInvestmentInfoButton
   ]
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0
@@ -51,25 +67,6 @@ const initialize = () => {
       handleNewAccounts(newAccounts)
     } catch (error) {
       console.error(error)
-    }
-  }
-
-  const MetaMaskClientCheck = () => {
-    //Now we check to see if MetaMask is installed
-    if (!isMetaMaskInstalled()) {
-      //If it isn't installed we ask the user to click to install it
-      onboardButton.innerText = 'Click here to install MetaMask!';
-      //When the button is clicked we call this function
-      onboardButton.onclick = onClickInstall;
-      //The button is now disabled
-      onboardButton.disabled = false;
-    } else {
-      //If it is installed we change our button text (would be great to have it displaying the account's address...)
-      onboardButton.innerText = 'Connected to Ethereum';
-      //When the button is clicked we call this function to connect the users MetaMask Wallet
-      onboardButton.onclick = onClickConnect;
-      //The button is now disabled
-      onboardButton.disabled = false;
     }
   }
 
@@ -104,57 +101,23 @@ const initialize = () => {
 
   const initializeAccountButtons = () => {
 
-    if (accountButtonsInitialized) {
-      return
-    }
-    accountButtonsInitialized = true
+  if (accountButtonsInitialized) {
+    return
+  }
+  accountButtonsInitialized = true
 
-    /**
-     * Contract Interactions
-     */
-
-    //fundsManagerContract = web3.eth.contract([{
-    //then, requestForContentContract = web3.eth.contract([{}])
-
-    // an authorization given by the user to use his Eth
-
-    /**
-     * Sending ETH
-     */
-
-    sendButton.onclick = () => {
-      web3.eth.sendTransaction({
-        from: accounts[0],
-        to: /*fundsManagerContract address*/0x9F9b47D1c380e94a35332866a7ad67abE0536AFF,
-        value: 0.1,
-        gas: 21000,
-        gasPrice: 20000000000,
-      }, (result) => {
-        console.log(result)
+  //Eth_Accounts-getAccountsButton
+  getAccountsButton.onclick = async () => {
+    try {
+      const _accounts = await ethereum.request({
+        method: 'eth_accounts',
       })
+      getAccountsResults.innerHTML = _accounts[0] || 'Not able to get accounts'
+    } catch (err) {
+      console.error(err)
+      getAccountsResults.innerHTML = `Error: ${err.message}`
     }
-  
-
-
-  // //Eth_Accounts-getAccountsButton
-  // getAccountsButton.addEventListener('click', async () => {
-  //   //we use eth_accounts because it returns a list of addresses owned by us.
-  //   const accounts = await ethereum.request({ method: 'eth_accounts' });
-  //   //We take the first address in the array of addresses and display it
-  //   getAccountsResult.innerHTML = accounts[0] || 'Not able to get accounts';
-  // });
-
-  // getAccountsButton.onclick = async () => {
-  //   try {
-  //     const _accounts = await ethereum.request({
-  //       method: 'eth_accounts',
-  //     })
-  //     getAccountsResults.innerHTML = _accounts[0] || 'Not able to get accounts'
-  //   } catch (err) {
-  //     console.error(err)
-  //     getAccountsResults.innerHTML = `Error: ${err.message}`
-  //   }
-  // }
+  }
 
   function handleNewAccounts (newAccounts) {
     accounts = newAccounts
@@ -174,19 +137,19 @@ const initialize = () => {
   }
 
   async function getNetworkAndChainId () {
-    try {
-      const chainId = await ethereum.request({
-        method: 'eth_chainId',
-      })
-      handleNewChain(chainId)
+  try {
+    const chainId = await ethereum.request({
+      method: 'eth_chainId',
+    })
+    handleNewChain(chainId)
 
-      const networkId = await ethereum.request({
-        method: 'net_version',
-      })
-      handleNewNetwork(networkId)
-    } catch (err) {
-      console.error(err)
-    }
+    const networkId = await ethereum.request({
+      method: 'net_version',
+    })
+    handleNewNetwork(networkId)
+  } catch (err) {
+    console.error(err)
+  }
   }
 
   updateButtons()
@@ -215,42 +178,74 @@ const initialize = () => {
   MetaMaskClientCheck();
 }
 
-  /****
-   * 
-   *  *  * Home page of the Dapp
-   *  
-   ****/
+  /**
+ * Contract Interactions
+ */
 
-  // Dapp Status Section
-  const networkDiv = document.getElementById('network');
-  const chainIdDiv = document.getElementById('chainId');
-  const accountsDiv = document.getElementById('accounts');
 
-  // Basic Actions Section
-  const onboardButton = document.getElementById('connectButton');
-  const getAccountsButton = document.getElementById('getAccounts');
-  const getAccountsResults = document.getElementById('getAccountsResult');
 
-  // Safe deposit (required for all users to have their txs accepted/interact with the protocol)
-  const safetyDepositSubmit = document.getElementById('safetyDeposit');
-  const membershipActiveStatus = document.getElementById('membershipActiveStatus');
-  const requiredEthForSD = await myContract.getRequireSDAmount().call()[0];
-  const sendEth = requiredEthForSD * 1.1;      // to force to send slightly more than the estimate to limit reverted txs
+
+  //fundsManagerContract = web3.eth.contract([{
+  //then, requestForContentContract = web3.eth.contract([{}])
+
+  // an authorization given by the user to use his Eth
+
+  /**
+   * Sending ETH
+   */
+  var safetyDepositButon = document.getElementById('safetyDeposit') 
+
+
+
+  safetyDepositButon.onclick = () => {
+    web3.eth.sendTransaction({
+      from: accounts[0],
+      to: account[1], //For tests purposes => should be the address of FundsManager contract
+      value: web3.utils.toHex(web3.utils.toWei('0.1', 'ether')), 
+      gas: web3.utils.toHex(21000),
+      gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'Gwei')),
+    }, (result) => {
+      console.log(result)
+    })
+    //.then.
+  }
+
+  //init variables:
+  function insertStatusMessage(statusString) {
+  membershipActiveStatusHTML.innerHTML = statusString
+  }
 
   safetyDepositSubmit.onclick = submitMMSafeDeposit;
 
   const submitMMSafeDeposit = () => {
     
+    // call contract function to read if this account has already a safeDeposit in the FundsMananger contract,
+    //  and if it is active or not (<=> already allocated to an RfC) // I could make the memebership/safety deposit decorrelated from this logic 
+    //  of allocation to RfC...
+
+    // Check if acount has already a 0.1 deposit locked in FundsManager:
+    fmContract.methods.getSDstatus(accounts[0]).call((err, result) => {
+      if (!result) {
+        statusString = 'Membership inactive';
+      }
+      statusString = 'Already active';
+      insertStatusMessage(statusString);
+    }
+    );
+
     //allow transfer of 0.1 to be signed by active user account
     fmContract.methods.approve(contractAddress, sendEth).send({from: userAddress}, 
       function(err, transactionHash) {
           //some code
-      });
+    });
 
+    
     //send 0.1 eth to FundsManager contract
+    
+
 
     safetyDepositSubmit.disabled = true;
-    membershipActiveStatus.innerHTML = 'Membership active';
+    insertStatusMessage('Membership active');
   }
 
   /****
@@ -300,4 +295,4 @@ const initialize = () => {
   const displayInvestmentInfoButton = document.getElementById('displayInvestmentInfoButton')
 
 
-window.addEventListener('DOMContentLoaded', initialize)
+window.addEventListener('DOMContentLoaded', initialize);

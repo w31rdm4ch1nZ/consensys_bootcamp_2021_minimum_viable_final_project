@@ -1,14 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzepplin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./RequestForContent.sol";
@@ -23,7 +16,8 @@ contract FundsManager {
     
     //uint256 private amount;
 
-    uint256 private rfcFund;
+    //keep track of the amount for a given RfC token:
+    mapping(address => mapping(uint256 => uint256)) private rfcIdFund;
 
     // used in SimpleInvestorsVote:
     uint256 private securityDeposit = 0.1; // arbitrary value for now in eth (should be expressed in $stablecoin eventually - next iteration)
@@ -31,11 +25,13 @@ contract FundsManager {
     // required for all users of the protocol
     mapping (address => mapping(uint256 => bool)) private madeSafeDeposit;
 
+    mapping(bool => uint256) private amountUserDepositCommitedToTheProtocol;
+
     mapping (address => mapping (uint256 => bool)) private securityDepositIsCommittedToAnRfC;
 
     uint256 public immutable MIN_ESCROW_TIME = 30 days;
 
-    mapping (address => mapping (uint256 => bool)) userHasSecurityDeposit;
+    mapping (address => mapping (uint256 => bool)) userSecurityDepositStatus;
 
     bool private locked;
 
@@ -66,7 +62,7 @@ contract FundsManager {
     }
 
     modifier userHasSecurityDeposit{
-        require(userHasSecurityDeposit == true, "The user does not have made the safety deposit that enables to act as investor  or content provider");
+        require(userSecurityDepositStatus == true, "The user does not have made the safety deposit that enables to act as investor  or content provider");
         _;
     }
 
@@ -87,6 +83,7 @@ contract FundsManager {
     }
 
     event DepositETH(address userDepositing, uint deposit);
+
     constructor()  {
         //test pre-game (to disappear)
         
@@ -103,42 +100,64 @@ contract FundsManager {
         return address(this).balance;
     }
 
-    function getRequireSDAmount() private view returns(uint256) {
-        return securityDeposit;
+    // get security deposit status for a given account
+    function getSDstatus(address _user) public view returns(bool) {
+        
+        return userSecurityDepositStatus;
     }
 
-    function depositETHandLock() external payable override userHasSecurityDeposit {
+    function getRfCFund(uint256 _id, address _user) public view returns(uint256) {
+        require(_id >= 0, "not a valid id");
+        require(_tokenAddr != 0, "address can't be 0, the contract has to exist already");
+        require(_user != 0, "invalid EOA");
+
+        rfcTokenAddress = getRfCTokenAddress(_id);
         
-        require(msg.value >= securityDeposit, "the amount provided is insufficient to constitute a safetyDeposit");
+    }
 
-        balance[msg.sender] -= msg.value;
+    function getRfCTokenAddress(uint256 _id) public view {
+        // check if RfC exists => RfC should not ever have the same id => check if Counters from openZeppelin gives this certitude... 
+        // TO DO
+    }
 
-        address(this).balance += msg.value;
+    function getAmountUserDepositCommitedToTheProtocol(address _user) external view {
 
-        hasSafetyDeposit[msg.sender] = true;
+        return amountUserDepositCommitedToTheProtocol;
+    }
 
-        if (securityDepositIsCommitedToAnRfC == false) {    
+    /**FINISH THAT **/
+    // function depositETHandLock() external payable override userHasSecurityDeposit {
+        
+    //     require(msg.value >= securityDeposit, "the amount provided is insufficient to constitute a safetyDeposit");
+
+    //     balance[msg.sender] -= msg.value;
+
+    //     address(this).balance += msg.value;
+
+    //     hasSafetyDeposit[msg.sender] = true;
+
+    //     if (securityDepositIsCommitedToAnRfC == false) {    
                 
-            rfcFund += _investor[safeDeposit];
-            //_investor.
-        }
-        else if () {
-            //check if amount includes a safeDeposit amount
-            require(_amount >= instanceFundsManagerContract.securityDeposit);
-            balance[_investor] -= _amount;
-            instanceFundsManagerContract.
+    //         rfcFund += _investor[safeDeposit];
+    //         //_investor.
+    //     }
+    //     else if () {
+    //         //check if amount includes a safeDeposit amount
+    //         require(_amount >= instanceFundsManagerContract.securityDeposit);
+    //         balance[_investor] -= _amount;
+    //         instanceFundsManagerContract.
 
-            instanceFundsManagerContract.rfcFund += 300;
+    //         instanceFundsManagerContract.rfcFund += 300;
         
 
-        signalInterest(_investor);
-        }
-        else (instanceFundsManagerContract.securityDeposit ){
-            //...
-        }
+    //     signalInterest(_investor);
+    //     }
+    //     else (instanceFundsManagerContract.securityDeposit ){
+    //         //...
+    //     }
             
-        emit DepositETH(_userDepositing, msg.value);
-    }
+    //     emit DepositETH(_userDepositing, msg.value);
+    // }
 
     function poolFundsForRfC(uint256 _RfCid) internal returns(RfCPool rfcPool) {
         
@@ -148,7 +167,7 @@ contract FundsManager {
         // lock eth (swapped in DAI) for 30 days
 
         //create correct variables for that
-        require(userHasSecurityDeposit[_user][_amount] != true, "The security deposit is already met");
+        require(userSecurityDepositStatus[_user][_amount] != true, "The security deposit is already met");
 
         //funds[_user] = sent to escrow
 

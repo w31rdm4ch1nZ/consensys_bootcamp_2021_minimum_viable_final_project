@@ -5,22 +5,35 @@ pragma solidity ^0.8.0;
 /** Simplify: make it ERC-721 instead of ERC-1155 for now **/
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Arrays.sol";
+
+// for defining role-based access control:
+import "@openzeppelin/contracts/access/Roles.sol";
 
 
 contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {          
 
     using Counters for Counters.Counter;
     using SafeMath for uint256;
+    using Roles for Roles.Role;
 
     Counters.Counter private _tokenIdTracker;
 
-    //I need this to be returned by the ERC1155 RfC contract (instead of duplicating the state variable in every contract)
-    //  AND I want it to be called only by contracts that need it (no EOAs)
-    //  some variable that keeps the set of existing RfCid (would call a function in the EscrowRfC contract if you keep it)
-    uint256 private RfCid = _tokenIdTracker;
+    Roles.Role private _minters;
+    // It is a role that is aimed at allowing FundsManager contract to make calls, avoiding any direct users and others (potentially malicious contract)
+    //  to call the functions on which I define a modifier to only allow this role to be the caller:
+    Roles.Role private _approvedFundsManagerInstance;
+
+    address private caller;
 
     uint256 private fundsPooledForRfC;  // should be set after mint...? (because unknown at proposal)
 
@@ -28,7 +41,7 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Ownabl
 
     mapping (address => mapping(address => uint256)) public trackFundsUseByCP; // see if doable in a simple way for now
 
-    FundsManager fundsManager /* = address of contract deployed on the testnet*/;
+    //FundsManager fundsManager /* = address of contract deployed on the testnet*/;
 
     /**
     *
@@ -87,7 +100,7 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Ownabl
                                 // are as long as the proposal don't include this mandatory field)
     }
 
-    ContentTypeDelivered contentMedium;
+    ContentMediumDelivered contentMedium;
 
         // => result which could be passed in a tx from the frontend would be a value that triggers a certain call among the ERC1155 functions:
         //  _mint(), and with more time (TO DO), more complex integrations like call to mint an NFT of a LivePeer video feed, etc.
@@ -186,7 +199,7 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Ownabl
     // Set arrays with values from enums passed (and checked for validity) from web3/MM tx 
     //The RfC struct, leading to the set of components and properties to be eventually tokenized as representing the request for content
     
-    struct RequestForContent {
+    struct RequestForContentStruct {
         //Define 1st the "mandatory" fields (for the RfC to even be considered to be proposed )
         // set arrays with possibly several values of one enum
         string[] contentTimeRequirements;
@@ -223,7 +236,7 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Ownabl
      //modifiers:
 
     modifier OnlyApprovedAcccounts{
-        require(caller = _operatorApprovals, "caller is not authorized");
+        require(caller = _approvedFundsManagerInstance, "caller is not authorized");
         _;
     }
 
@@ -269,50 +282,51 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Ownabl
     
     **/
 
-    //replace the need for the state variable RfCid that you defined in this contract - see function above
-    function getRfCId(uint256 _id) external OnlyApprovedContracts view returns(uint256) {
-        if (_id == existingIds) {
-            //maybe consider this function to return in case of existing id a set of information that will be consumed by the frontend
-            return true;
-        }
-        return false;
-    }
-
     function setEnums(uint256 _data) internal {
         // Find a way (simpler) than with offsets in bytes, but if necessary... do it
         //contentTimeRequirements = ...; 
     }
 
-    function setRfCForMint() internal returns (RequestForContent RfC) {
+    /** ==>>> NEW IDEA TO IMPLEMENT THE "Check the values for RfC to be valid, and then only minted... <<<=== **/
+    // You likely should use the utils/Arrays.sol OpenZeppelin contract to iterate (knowing they will have minimize space and gas overhead):
+    //  adding import "@openzeppelin/contracts/utils/Arrays.sol"; => and then takes the values sent through the frontend (or better: 
+    //  update the frontend listing with the values of your smart contract! => the limited set that the protocol integrates at a given time and that
+    //  protocol's particpants can use to define an RfC)
+    function setRfCForMint() internal /**returns (RequestForContentStruct RfC)**/ {
+
+        //cf. above: TO DO
+
         // set struct with the values set in setEnums:
-        RequestForContent.When = _when;
-        RequestForContent.ContentTypeDelivered = _contentType;
+        RequestForContentStruct.When = when;
+        RequestForContentStruct.ContentTypeDelivered = _contentType;
         //...
+
     } 
 
         // =>>>>> USE THIS struct states to avoid 2 mints and keep this track state during the CP silent auction
 
     // Then, once CP selected, mint it (wit the info like fundsAllocated, etc. that allow to leverage ERC1155 possibilities):
-    function setRfCReadyForMint(RequestForContent RfC, bool isFunded, int256 fundsPooledInvestorsAmount, uint256 fundsPooledCPsAmount) external returns() {};
+    function setRfCReadyForMint(RequestForContentStruct RfC, bool isFunded, int256 fundsPooledInvestorsAmount, uint256 fundsPooledCPsAmount) external {
+
         //TO DO
 
         //NFT minted, incorporating the possibilities to be then splitted (as for Gnosis Conditional Tokens)
     }
 
-    //Following ERC1155 standard:
-    //minting the RfC => calls to ERC1155 contracts/interfaces (import them)
-    function mintRfC() external {
-        //To do in order to check that the data from the transaction coming are in the set of RfC valid inputs => loop through the enum (or
-        //  anything more efficient/involving less computation ops...)
+    // //Following ERC1155 standard:
+    // //minting the RfC => calls to ERC1155 contracts/interfaces (import them)
+    // function mintRfC() external {
+    //     //To do in order to check that the data from the transaction coming are in the set of RfC valid inputs => loop through the enum (or
+    //     //  anything more efficient/involving less computation ops...)
 
-        _mint(address toRfCEscrow, uint256 RfCId, int256 )
+    //     _mint(toRfCEscrow, RfCId,  )
 
-    }
+    // }
 
     //called in mint function (probably?)
-    function collaterlizedRfCMint() internal returns() {
+    function collaterlizedRfCMint() internal  {
         //TO DO
-    };
+    }
 
     function reportRfCPayouts() external {
         //TO DO
@@ -320,15 +334,15 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Ownabl
 
     // QUESTION: in FundsManager contract or here??
     //comparable to the split function in the Gnosis Conditional Token contract:
-    function burnSharesNFTforERC20(address _contentCreationOG, uint256 _contentPrice, ) external returns(bool success) {
+    function burnSharesNFTforERC20(address _contentCreationOG, uint256 _contentPrice/**, anything else? **/ ) external returns(bool success) {
         //TO DO: allow investors to sell their shares for some ERC20 stablecoin(DAI)/Eth
 
     }
 
-    // Lkely not to be implemented in this iteration
-    //for readability and clarity (in function call for instance), separate the function below from the one adding new elements:
-    function addNewElToRfC() internal returns () {
-        //TO DO: enrich an existing RfC by adding richer content/properties (eg. might be interesting if it is a software or an investigative article)
-    }
+    // // Lkely not to be implemented in this iteration
+    // //for readability and clarity (in function call for instance), separate the function below from the one adding new elements:
+    // function addNewElToRfC() internal {
+    //     //TO DO: enrich an existing RfC by adding richer content/properties (eg. might be interesting if it is a software or an investigative article)
+    // }
 
 }

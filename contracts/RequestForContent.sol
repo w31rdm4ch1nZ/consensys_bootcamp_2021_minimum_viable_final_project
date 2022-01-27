@@ -29,7 +29,7 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Access
     //bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     // It is a role that is aimed at allowing FundsManager contract to make inter-contracts calls, avoiding any direct users and others (potentially malicious contract)
     //  to call the functions on which I define a modifier to only allow this role to be the caller:
-    bytes32 public constant FUNDS_MANAGER_ROLE = keccak256("FUNDS_MANAGER_ROLE");
+    
 
     address private caller;
 
@@ -241,10 +241,8 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Access
     event SucessfullyMinted(address RfC, uint256 id, uint256 time);
 
     // Definitively better if you can do all that with ERC1155.... Otherwise get back to Ownable pattern
-    constructor(address fmContract) ERC721("RequestForContent", "RFC") {
-        // Grant the minter role to the FundsManager contract (oviously redundant at this point with our other role, but aiming at 
-        //  practicing the pattern so I digest it and reuse it in the future)
-        _setupRole(FUNDS_MANAGER_ROLE, fmContract);
+    constructor() ERC721("RequestForContent", "RFC") {
+        
     }
 
     function _baseURI() internal pure override returns (string memory) {

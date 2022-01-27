@@ -14,6 +14,8 @@ contract FundsManager {
     //eventually make those 2 state variable the same... => can encompass EOA and contract addresses, no pb.
     address public addr;
 
+    mapping(address => uint256) private balanceAccount;
+
     // allows to track the amount of one investor in one RfC (can have several investments):
     // investor address => RfCid => amount   
     mapping(address => mapping(uint256 => uint256)) public investorAmountToSpecificRfC;
@@ -71,9 +73,16 @@ contract FundsManager {
         _;
     }
 
+    modifier withdrawApproved() {
+        require(unlock);
+        require(depositTime >= maturationTime);
+        require(account[amount] <= balance[msg.sender]);
+        _;
+    }
+
     event madeSafeDeposit(address indexed member);
 
-    event DepositETH(address userDepositing, uint deposit);
+    event DepositETH(address indexed userDepositing, uint256 deposit, uint256 indexed RfCid);
 
     event withdrawSafeDeposit(address investor, bool success);
 
@@ -82,14 +91,19 @@ contract FundsManager {
         
         //Define roles of the pattern access control
         // TO DO
+        _setContractAdminRole(keccak256("INVESTORESCROW_ADMIN_ROLE"));  // a multisg-wallet with 1 3rd 
+                                                                        // controlled by previous users of the protocol
+        _setupRole(FUNDS_MANAGER_ROLE, address(this));
 
         //instantiates the other contracts and have the address "known" by this contract
         RequestForContent RfC = new RequestForContent();
+        RFCEscrow escrowRfC = new RFCEscrow();
+        //others?
 
     }
 
     //Returns balance of InvestorEscrow contract
-    function getContractBalance() public view returns(uint){
+    function getContractBalance() public view returns(uint256){
         return address(this).balance;
     }
 
@@ -97,6 +111,10 @@ contract FundsManager {
     function getSDstatus(address _user) public view returns(bool) {
         
         return userSecurityDepositStatus;
+    }
+
+    function getRfCStatus(RfCId) public view returns(bool) {
+        //TO DO
     }
 
     function getRfCFund(uint256 _id, address _user, address _RFCToken) public view returns(uint256) {
@@ -150,7 +168,15 @@ contract FundsManager {
     //     emit DepositETH(_userDepositing, msg.value);
     // }
 
-    function investETH() external payable onlyMember {
+    function investETH(uint256 RfCid, address _rfcToken) external payable onlyMember {
+        require(balance[msg.sender] >= msg.value, "user doesn't have emough funds => revert");
+
+
+        balance[address(this)] += msg.value;
+
+        //allocateFundsToRfC();
+        //lockFunds(msg.sender);
+        emit Deposit(msg.sender, msg.value);
 
     } 
 
@@ -191,12 +217,13 @@ contract FundsManager {
         // TO DO
     }
 
-    function allocateFundsToRfC(address _user,uint256 _id) public onlyMember returns(uint256 totalAmount) {
-
+    function allocateFundsToRfC(address _user,uint256 _id, uint256 _unlockDate) public onlyMember returns(uint256 totalAmount) {
+        //TO DO
+        
     }
 
     // again by seting the scope to private I only allow a function from this contract (does not mean it can't be abused if not careful...)
-    function lockSafeDeposit(address _user, uint256 _amount, uint256 _unlockDate) private onlyFMProxy {
+    function lockSafeDeposit(address _user, uint256 _amount, uint256 _unlockDate) private  payable onlyFMProxy {
         // lock eth (swapped in DAI) for 30 days
 
         //create correct variables for that
@@ -210,10 +237,38 @@ contract FundsManager {
         //call it from another function in this contract either once condition for unlock funds are met, or because the expiration date is reached
     }
 
-    function withdrawETH() external onlyMember {
+    function withdrawETH() external onlyMember withdrawApproved {
 
 
     }
+
+    //specific withdraw: when the RfC doesn't pass the investors vote (time of deposit for investors who vote with ether +
+    //  15 days)
+    function withdrawFromEscrow(address _account, uint256 _amount, uint256 _matureTime) external onlyMember withdrawApproved {
+        require(_matureTime >= block.timestamp, "Escrow period not expired.");  // calculate the 30 days: time of deposit
+                                                                                 // (should be recorded in a state variable, like block.timestamp f the tx)
+                                                                                 // + 30 days (in linux time format)
+                                                                                 // check withdrawApproved to implement part of requirements
+
+        //that's a case requiring a burn feature:
+        RequestForContent.burn(_rfcId);
+
+        //(bool success, bytes data) = msg.sender.call{value: amount}("");
+
+        require(success, "Transfer failed.");
+
+        emit Redeemed(msg.sender, amount);
+    }
+
+    function depositPayAccessContent(uint256 _RfCId, uint256 _amount) external {
+        //as investors have shares to a content they produce (that they can eventually sell to other users,
+        //  but that will change their status back ti users, or RfCIdInvestor = false), they 
+        //  will call another function to access content, if needed, that encodes the logic of their shares
+        //  in the content, etc. 
+        require(msg.sender != Investor, "investors in this RfC should access this content through their dashboard");
+
+        //should return a token that gives them all data/authorization to access content
+    } 
 
 
     /** Interactions with RequestForContent contract: **/
@@ -236,10 +291,16 @@ contract FundsManager {
         return allocateFundsToRfC();
     }
 
-    //Default functions in case of accidental crypto sent to the contract => revert
+    //Default functions in case of accidental crypto sent to the contract => revert => INCLUDE THE revert() logic in
+    //  the deposit function (eg. if an argument is missing, revert:   require(RfCid, etc. ))
 
-    fallback() external payable {
-        revert();    
+    // fallback() external payable {
+    //     //address(this).send(msg.value);
+    //     revert();
+    // }
+
+    function contractAddress() public view returns (address) {
+        return address(this);
     }
 
 }

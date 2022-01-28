@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "./FundsManager.sol";
 
+/** Eventually leading to an open Content Shares Market is something that is tought of */
+
 contract InvestorFundSharesOnContent is ERC20, ERC20Burnable, Ownable, ERC20Permit, ERC20Votes {
 
   //use safeERC20

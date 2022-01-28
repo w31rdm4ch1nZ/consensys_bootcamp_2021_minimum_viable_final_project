@@ -18,6 +18,8 @@ import "@openzeppelin/contracts/utils/Arrays.sol";
 
 // for defining role-based access control:
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "./FundsManager.sol";
+import "./Permissions.sol";
 
 contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, AccessControl {          
 
@@ -233,10 +235,6 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Access
 
      //modifiers:
 
-    modifier OnlyApprovedFundsManager{
-        require(caller = FUNDS_MANAGER_ROLE, "caller is not the authorized FundsMananger contract");
-        _;
-    }
 
     event SucessfullyMinted(address RfC, uint256 id, uint256 time);
 
@@ -250,7 +248,7 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Access
     }
 
 
-    function safeMint(address to) external OnlyApprovedFundsManager {
+    function safeMint(address to) external onlyFMProxy {
         uint256 tokenId = _tokenIdTracker.current();
         _tokenIdTracker.increment();
         _safeMint(to, tokenId);

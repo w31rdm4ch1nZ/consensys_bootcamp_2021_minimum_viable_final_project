@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./RequestForContent.sol";
 // for defining role-based access control:
 import "@openzeppelin/contracts/access/AccessControl.sol";
-
+import "./Permissions.sol";
 contract FundsManager {
 
     address public user;
@@ -55,6 +55,7 @@ contract FundsManager {
     // => this value should be returned to this contract by the contract implementing the proposal logic
     bool public hasPassed = false;
 
+   
     modifier hasFunds{
         require(user.msg.value >= msg.value, "The user has not enough funds for the tx to happen");
         _;
@@ -80,6 +81,16 @@ contract FundsManager {
         _;
     }
 
+    // modifier onlyFMProxy() {
+    //     require(isFMProxy(addres(this)), "Permissions: This call can only be initiated by the actual protocol's instance of FundsManager contract");
+    //     _;
+    // }
+
+    // modifier onlyRFCFactoryContract() {
+    //     require(address(rfcFactoryContract), "this can only be done from the RfC factory contract");
+    //     _;
+    // }
+
     event madeSafeDeposit(address indexed member);
 
     event DepositETH(address indexed userDepositing, uint256 deposit, uint256 indexed RfCid);
@@ -91,13 +102,11 @@ contract FundsManager {
         
         //Define roles of the pattern access control
         // TO DO
-        _setContractAdminRole(keccak256("INVESTORESCROW_ADMIN_ROLE"));  // a multisg-wallet with 1 3rd 
-                                                                        // controlled by previous users of the protocol
         _setupRole(FUNDS_MANAGER_ROLE, address(this));
 
         //instantiates the other contracts and have the address "known" by this contract
-        RequestForContent RfC = new RequestForContent();
-        RFCEscrow escrowRfC = new RFCEscrow();
+        RequestForContent rfcFactoryContract = new RequestForContent();
+        RFCEscrow escrowRfCContract = new RFCEscrow();
         //others?
 
     }
@@ -299,7 +308,7 @@ contract FundsManager {
     //     revert();
     // }
 
-    function contractAddress() public view returns (address) {
+    function getFMContractAddr() external view onlyRFCFactoryContract returns(address) {
         return address(this);
     }
 

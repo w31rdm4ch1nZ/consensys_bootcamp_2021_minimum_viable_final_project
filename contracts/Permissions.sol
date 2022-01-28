@@ -23,6 +23,7 @@ contract Permissions is IPermissions, AccessControlEnumerable {
     bytes32 public constant override MEMBER_ROLE = keccak256("MEMBER_ROLE");
     bytes32 public constant FUNDS_MANAGER_ROLE = keccak256("FUNDS_MANAGER_ROLE");
     bytes32 public constant override GUARDIAN_ROLE = keccak256("GUARDIAN_ROLE");
+    bytes32 public constant override GOVERN_ROLE = keccak256("GOVERN_ROLE");
     //bytes32 public constant override AUTONOMOUS_PROTOCOL_ROLE = keccak256("AUTONOMOUS_PROTOCOL_ROLE");
 
     constructor() {
@@ -45,6 +46,11 @@ contract Permissions is IPermissions, AccessControlEnumerable {
 
     modifier onlyGuardian() {
         require(isGuardian(msg.sender), "Permissions: Caller is not a guardian");
+        _;
+    }
+
+    modifier onlyFMProxy() {
+        require(isFMProxy(msg.sender), "Permissions: Caller is not a FundsManager protocol's contract instance");
         _;
     }
 
@@ -167,7 +173,7 @@ contract Permissions is IPermissions, AccessControlEnumerable {
     /// @param _address address to check
     /// @return true _address is a controller
     function isFMProxy(address _address)
-        external
+        public
         view
         override
         returns (bool)

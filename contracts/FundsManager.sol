@@ -1,28 +1,45 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+//import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";  // => quick double check to se how to use it (modifier or other stuff?)
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
 import "./RequestForContent.sol";
+import "./RfCEscrow.sol";
 // for defining role-based access control:
-import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./Permissions.sol";
-contract FundsManager {
+contract FundsManager is Permissions, Initializable {
+
+    using SafeERC20 for IERC20; // shouldn't be needed in 1st iteration as I limit ERC20-like to ether... or you make the choice to use WETH to simplify how you deal with tokens
+                                // and stay in the ERC20 standards and the reuse is enables instead of coding you own custom logic for every crypto-asset (especially since
+                                //  you intend to only use stablecoins in the end)
+
+    //Protocols Contracts deployed through minting this contract:
+    RequestForContent public rfcFactoryContract = new RequestForContent();
+    RfCEscrow public escrowRfCContract = new RfCEscrow();
 
     address public user;
     //eventually make those 2 state variable the same... => can encompass EOA and contract addresses, no pb.
     address public addr;
 
-    mapping(address => uint256) private balanceAccount;
+    mapping(address => bool) internal membershipStatus = false;
+
+    //mapping(address => uint256) private balanceAccount;   => nod needed => balance.addr
+
+    mapping(address => uint256) private depositStartTime;    // to use only for cases different from safe deposits => use a specific state variable for both
+    mapping(address => uint256) private memberSafeDepositStartTime;
+    uint256 private maturationTime;   // used for calculation of the allowed withdraw time
 
     // allows to track the amount of one investor in one RfC (can have several investments):
     // investor address => RfCid => amount   
     mapping(address => mapping(uint256 => uint256)) public investorAmountToSpecificRfC;
 
-    mapping(address => mapping(address => uint)) public allowance;
+    //mapping(address => mapping(address => uint)) public allowance;
     
-    uint256 private contractBalance = address(this).balance; // to be used in functions where the state can be changed (limiting the scope through private)
+    //uint256 private contractBalance = address(this).balance; // to be used in functions where the state can be changed (limiting the scope through private)
     
     //uint256 private amount;
 
@@ -30,26 +47,26 @@ contract FundsManager {
     mapping(address => mapping(uint256 => uint256)) private rfcIdFund;
 
     // used in SimpleInvestorsVote:
-    uint256 private securityDeposit = 0.1; // arbitrary value for now in eth (should be expressed in $stablecoin eventually - next iteration)
-
-    // required for all users of the protocol
-    mapping (address => mapping(uint256 => bool)) private safeDepositMade;
-
-    //mapping(bool => uint256) private amountUserDepositCommitedToTheProtocol;
-
-    //mapping (address => mapping (uint256 => bool)) private securityDepositIsCommittedToAnRfC;
+    uint256 private immutable SECURITY_DEPOSIT = 0.1; // arbitrary value for now in eth (should be expressed in $stablecoin eventually - next iteration)
 
     uint256 public immutable MIN_ESCROW_TIME = 30 days;
 
-    mapping (address => mapping (uint256 => bool)) userSecurityDepositStatus;
+    // required for all users of the protocol
+    mapping (address =>  bool) private safeDepositMade;
+
+    mapping(bool => uint256) private amountUserDepositCommitedToTheProtocol;
+
+    //mapping (address => mapping (uint256 => bool)) private securityDepositIsCommittedToAnRfC;
 
     bool private locked;
 
-    uint256 public shareOfRfCOwnership;
 
+    // you don't need all those var:
+    uint256 public shareOfRfCOwnership;
+    mapping (address => mapping(uint256 => uint256)) public shareRatioOfRfC; 
     uint256 private ratio;
 
-    mapping (address => mapping(uint256 => uint256)) public shareRatioOfRfC; 
+    
 
     //a value that says when a RfC is passes the proposal round and is now in "processing" (by a CP) status:
     // => this value should be returned to this contract by the contract implementing the proposal logic
@@ -61,23 +78,21 @@ contract FundsManager {
         _;
     }
 
-    modifier userHasSecurityDeposit{
-        require(userSecurityDepositStatus == true, "The user does not have made the safety deposit that enables to act as investor  or content provider");
-        _;
-    }
+    // Shoud not be useful since I use now onlyMember and membershipStatus
+    // modifier userHasSecurityDeposit{
+    //     require(userSecurityDepositStatus == true, "The user does not have made the safety deposit that enables to act as investor or content provider");
+    //     _;
+    // }
 
     modifier onlyMember() {
-        require(
-            isMember(msg.sender),
-            "Permissions: Caller does not have a safe deposit and active membership"
-        );
+        require(membershipStatus == true, "Permissions: Caller does not have a safe deposit and active membership");
         _;
     }
 
     modifier withdrawApproved() {
-        require(unlock);
-        require(depositTime >= maturationTime);
-        require(account[amount] <= balance[msg.sender]);
+        require(unlock, "funds are locked");
+        require(block.timestamp >= depositStartTime + MIN_ESCROW_TIME);
+        require(addr.balance <= msg.sender.balance);
         _;
     }
 
@@ -93,21 +108,23 @@ contract FundsManager {
 
     event madeSafeDeposit(address indexed member);
 
-    event DepositETH(address indexed userDepositing, uint256 deposit, uint256 indexed RfCid);
+    event DepositForRfC(address indexed userDepositing, uint256 deposit, uint256 indexed RfCid);
 
     event withdrawSafeDeposit(address investor, bool success);
 
-    constructor()  {
+    event cpRewardRedeemed(address _cp, uint256 _rfcId, uint256 _amount);
+
+    event investorInvestmentRedeemed();
+
+    event investorSharesMinted();
+
+    function init() external override  initializer {
         //test pre-game (to disappear)
         
         //Define roles of the pattern access control
-        // TO DO
         _setupRole(FUNDS_MANAGER_ROLE, address(this));
 
-        //instantiates the other contracts and have the address "known" by this contract
-        RequestForContent rfcFactoryContract = new RequestForContent();
-        RFCEscrow escrowRfCContract = new RFCEscrow();
-        //others?
+        RequestForContent rfcContract = new RequestForContent();
 
     }
 
@@ -116,19 +133,19 @@ contract FundsManager {
         return address(this).balance;
     }
 
-    // get security deposit status for a given account
+    // check for security deposit status for a given account
     function getSDstatus(address _user) public view returns(bool) {
         
-        return userSecurityDepositStatus;
+        return safeDepositMade;
     }
 
-    function getRfCStatus(RfCId) public view returns(bool) {
+    function getRfCStatus(uint256 _rfcId) public view returns(bool) {
         //TO DO
     }
 
-    function getRfCFund(uint256 _id, address _user, address _RFCToken) public view returns(uint256) {
+    function getRfCFund(uint256 _id, address _user, address memory _RFCToken) public view returns(uint256) {
         require(_id >= 0, "not a valid id");
-        require(_tokenAddr != 0, "address can't be 0, the contract has to exist already");
+        require(_RFCToken != address(0), "address can't be 0, the contract has to exist already");
         require(_user != 0, "invalid EOA");
         address rfcTokenAddress;
         rfcTokenAddress = getRfCTokenAddress(_id);
@@ -141,9 +158,18 @@ contract FundsManager {
         // TO DO
     }
 
-    function getAmountUserDepositCommitedToTheProtocol(address _user) external view {
+    function getAmountUserDepositForRfC(address _account, uint256 _amount, uint256 _RfCid) public returns (uint256 amount) {
+        return investorAmountToSpecificRfC[_RfCid][_amount];
+    }
+
+    //nee to increment this number at every invest & CP deposit
+    function getTotalAmountUserDepositToTheProtocol(address _user) public view returns (uint256) {
 
         return amountUserDepositCommitedToTheProtocol;
+    }
+
+    function setTotalAmountUserDepositToTheProtocol(address _user) internal {
+
     }
 
     /**FINISH THAT **/
@@ -178,37 +204,44 @@ contract FundsManager {
     // }
 
     function investETH(uint256 RfCid, address _rfcToken) external payable onlyMember {
-        require(balance[msg.sender] >= msg.value, "user doesn't have emough funds => revert");
+        require(msg.sender.balance >= msg.value, "user doesn't have emough funds => revert");
 
 
-        balance[address(this)] += msg.value;
-
+        address(this).balance += msg.value;
+        depositStartTime = block.timestamp;
         //allocateFundsToRfC();
         //lockFunds(msg.sender);
-        emit Deposit(msg.sender, msg.value);
+        emit DepositForRfC(msg.sender, msg.value);
 
     } 
 
 
-    function safeDepositForMembership(address _member) public payable {
+    function safeDepositForMembership(address _aspiringMember) public payable {
         // to think about: _setupRole(MEMBERS_W_SAFETY_DEPOSIT, member);
-        require(balance[msg.sender] >= 0, "balance must be positive");  // don't think it is useful...
+        require(msg.sender.balance >= 0, "balance must be positive");  // don't think it is useful...
         require(msg.value == 0.1 ether, "The amount of 0.1 ether is not reached");  // be ready for your exection to err here
                                                                                     // simply bc more ether has been sent, and so it reverts
                                                                                     // => how to make sure to maximize successful txs for users?
                                                                                     //  so they get their funds back in case too much is sent?
+        uint256 startTime;
+
+        lockSafeDeposit(_aspiringMember);
         //try {
-        balance[msg.sender] -= 0.1 ether;
+        msg.sender.balance -= 0.1 ether;
         //test if you need this (as it will only be ether for now, you should not)
         //address(this).balance += msg.value;
         //}
         //catch {revert()}
-        setLock(msg.sender, 0.1 ether);
+        //safeDepositMade = true;
 
-        emit madeSafeDeposit(_member);
+        //set member status
+        //membershipStatus = true;
+        //set safety deposit time to calculate the unlock time
+        memberSafeDepositStartTime[startTime] = block.timestamp;                      // equivalent to now (using it to be explicit)
+        emit madeSafeDeposit(_aspiringMember);
     } 
 
-    function initiateWithdrawSafeDeposit() external onlyMember {
+    function initiateWithdrawSafeDeposit(address _member) external onlyMember {
 
         //starts a timer that last about 30 days (check the ) that once done allow direct withdrawal (simplest form I can think of now)
 
@@ -216,7 +249,7 @@ contract FundsManager {
         //  order and the access control you've implemented that way... anyway do it like that for now)
 
         //change status to non-member:
-        _revokeRole(MEMBERS_W_SAFETY_DEPOSIT, member);
+        _member[membershipStatus] = false;
 
         //events: withdraw success or not, and then membership stopped 
         emit withdrawSafeDeposit(msg.sender, true);
@@ -232,13 +265,19 @@ contract FundsManager {
     }
 
     // again by seting the scope to private I only allow a function from this contract (does not mean it can't be abused if not careful...)
-    function lockSafeDeposit(address _user, uint256 _amount, uint256 _unlockDate) private  payable onlyFMProxy {
-        // lock eth (swapped in DAI) for 30 days
+    function lockSafeDeposit(address _user)private  payable onlyFMProxy {
+        require(safeDepositMade[_user] != true, "The security deposit is already met");
 
-        //create correct variables for that
-        require(userSecurityDepositStatus[_user][_amount] != true, "The security deposit is already met");
-
-        //funds[_user] = sent to escrow
+        // >>>> check the conversion MIN_ESCROW_TIME to unix time so no bug:
+        if (block.timestamp - MIN_ESCROW_TIME >= _user[memberSafeDepositStartTime]) {
+            locked = true;
+            safeDepositMade[_user] = true;
+            address(this).balance += 0.1 ether;
+        }
+        else {
+            locked = false;
+            revert();   // I guess that would be enough? Trying to get an err that bubbles up to the iuser though
+        }
 
     }
 
@@ -252,8 +291,8 @@ contract FundsManager {
     }
 
     //specific withdraw: when the RfC doesn't pass the investors vote (time of deposit for investors who vote with ether +
-    //  15 days)
-    function withdrawFromEscrow(address _account, uint256 _amount, uint256 _matureTime) external onlyMember withdrawApproved {
+    //  15 days):
+    function withdrawFromEscrow(address _account, uint256 _amount, uint256 _matureTime, uint256 _rfcId) external onlyMember withdrawApproved {
         require(_matureTime >= block.timestamp, "Escrow period not expired.");  // calculate the 30 days: time of deposit
                                                                                  // (should be recorded in a state variable, like block.timestamp f the tx)
                                                                                  // + 30 days (in linux time format)
@@ -264,7 +303,7 @@ contract FundsManager {
 
         //(bool success, bytes data) = msg.sender.call{value: amount}("");
 
-        require(success, "Transfer failed.");
+        //require(success, "Transfer failed.");
 
         emit Redeemed(msg.sender, amount);
     }
@@ -285,7 +324,7 @@ contract FundsManager {
     function getRfCid(address _investorOrCP, uint256 _id) external view {
         require(id >= 0, "id is invalid number");
 
-        return RfC.getRfCid(_id);
+        return rfcFactoryContract.getRfCid(_id);
     }
 
     function setRfCIdFund(uint256 _id) public {
@@ -308,8 +347,9 @@ contract FundsManager {
     //     revert();
     // }
 
-    function getFMContractAddr() external view onlyRFCFactoryContract returns(address) {
+    function getFMContractAddr() external view onlyFMProxy returns(address) {
         return address(this);
     }
+
 
 }

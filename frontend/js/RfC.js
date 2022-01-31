@@ -12,12 +12,12 @@ var contractRfC = new web3.eth.Contract(abi, address);
 
 let date = (new Date()).getTime();
 let birthDateInUnixTimestamp = date / 1000;
-await BirthDate.methods.set(birthDateInUnixTimestamp).send(opts);
+//await BirthDate.methods.set(birthDateInUnixTimestamp).send(opts);
 
 //To get date from smart-contract with web3.js:
 
-let birthDateInUnixTimestamp = await BirthDate.methods.get().call();
-let date = new Date(birthDateInUnixTimestamp * 1000);
+let birthDateInUnixTimestamp /*= await BirthDate.methods.get().call() */;   // => define your time method
+//let date = new Date(birthDateInUnixTimestamp * 1000);
 
 
 // cf. https://web3js.readthedocs.io/en/v1.5.2/web3.html#batchrequest

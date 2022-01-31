@@ -54,6 +54,7 @@ contract Permissions is IPermissions, AccessControlEnumerable {
         _;
     }
 
+
     /// @notice creates a new role to be maintained
     /// @param role the new role id
     /// @param adminRole the admin role id for `role`

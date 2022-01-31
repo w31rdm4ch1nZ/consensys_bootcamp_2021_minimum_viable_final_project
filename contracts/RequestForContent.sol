@@ -35,6 +35,8 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Access
 
     address private caller;
 
+    address private owner;
+
     uint256 private fundsPooledForRfC;  // should be set after mint...? (because unknown at proposal)
 
     uint256 public allocatedBudgetForPC; // see if you tokenize this (probably)
@@ -217,6 +219,11 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Access
     //     //TO DO
     // }
 
+    modifier onlyOwner() {
+        require(msg.sender == owner, "the caller is not the FundsManager contract");
+        _;
+    }
+
     event RfCProposal(address proposer, bool success);
 
     event RfCMinted(address indexed RfCToken, uint256 RfCidCounter);
@@ -240,7 +247,7 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Access
 
     // Definitively better if you can do all that with ERC1155.... Otherwise get back to Ownable pattern
     constructor() ERC721("RequestForContent", "RFC") {
-        
+        owner = msg.sender;
     }
 
     function _baseURI() internal pure override returns (string memory) {
@@ -248,7 +255,7 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Access
     }
 
 
-    function safeMint(address to) external onlyFMProxy {
+    function safeMint(address to) external onlyOwner {
         uint256 tokenId = _tokenIdTracker.current();
         _tokenIdTracker.increment();
         _safeMint(to, tokenId);

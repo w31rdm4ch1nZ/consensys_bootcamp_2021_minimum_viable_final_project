@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 
 /** Simplify: make it ERC-721 instead of ERC-1155 for now **/
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+//import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
@@ -21,12 +21,12 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./FundsManager.sol";
 import "./Permissions.sol";
 
-contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, AccessControl {          
+contract RequestForContent is ERC721Enumerable {          
 
     using Counters for Counters.Counter;
     using SafeMath for uint256;
 
-    Counters.Counter private _tokenIdTracker;
+    Counters.Counter private tokenIdTracker;
 
     //bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     // It is a role that is aimed at allowing FundsManager contract to make inter-contracts calls, avoiding any direct users and others (potentially malicious contract)
@@ -247,7 +247,7 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Access
 
     // Definitively better if you can do all that with ERC1155.... Otherwise get back to Ownable pattern
     constructor() ERC721("RequestForContent", "RFC") {
-        owner = msg.sender;
+        //owner = msg.sender;
     }
 
     function _baseURI() internal pure override returns (string memory) {
@@ -255,31 +255,31 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Access
     }
 
 
-    function safeMint(address to) external onlyOwner {
-        uint256 tokenId = _tokenIdTracker.current();
-        _tokenIdTracker.increment();
-        _safeMint(to, tokenId);
+    // function safeMint(address to) external onlyOwner {
+    //     uint256 tokenId = tokenIdTracker.current();
+    //     tokenIdTracker.increment();
+    //     _safeMint(to, tokenId);
 
-        emit SucessfullyMinted(to, tokenId, now);   // "now" gives the time in unix standard = make a conversion in your js
-    }
+    //     emit SucessfullyMinted(to, tokenId, block.timestamp);   // "now" gives the time in unix standard = make a conversion in your js
+    // }
 
     // The following functions are overrides required by Solidity.
 
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId)
-        internal
-        override(ERC721, ERC721Enumerable)
-    {
-        super._beforeTokenTransfer(from, to, tokenId);
-    }
+    // function _beforeTokenTransfer(address from, address to, uint256 tokenId)
+    //     internal
+    //     override(ERC721, ERC721Enumerable)
+    // {
+    //     super._beforeTokenTransfer(from, to, tokenId);
+    // }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721, ERC721Enumerable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
+    // function supportsInterface(bytes4 interfaceId)
+    //     public
+    //     view
+    //     override(ERC721, ERC721Enumerable, AccessControl)
+    //     returns (bool)
+    // {
+    //     return super.supportsInterface(interfaceId);
+    // }
 
 
     /** 
@@ -303,7 +303,7 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Access
         //cf. above: TO DO
 
         // set struct with the values set in setEnums:
-        RequestForContentStruct.When = when;
+        //RequestForContentStruct.When = when;
         //RequestForContentStruct.ContentTypeDelivered = _contentType;
         //...
 
@@ -312,11 +312,16 @@ contract RequestForContent is ERC721, ERC721Enumerable, ERC721URIStorage, Access
         // =>>>>> USE THIS struct states to avoid 2 mints and keep this track state during the CP silent auction
 
     // Then, once CP selected, mint it (wit the info like fundsAllocated, etc. that allow to leverage ERC1155 possibilities):
-    function setRfCReadyForMint(RequestForContentStruct RfC, bool isFunded, int256 fundsPooledInvestorsAmount, uint256 fundsPooledCPsAmount) external {
+    function setRfCReadyForMint(bool isFunded, int256 fundsPooledInvestorsAmount, uint256 fundsPooledCPsAmount) external {
 
         //TO DO
+        //mintRfC()
 
         //NFT minted, incorporating the possibilities to be then splitted (as for Gnosis Conditional Tokens)
+    }
+
+    function burnRfCInCaseNotPassed(uint256 _tmpRfCId) internal {
+        _burn(_tmpRfCId);
     }
 
     // //Following ERC1155 standard:

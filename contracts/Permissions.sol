@@ -21,7 +21,7 @@ import "./IPermissions.sol";
 contract Permissions is IPermissions, AccessControlEnumerable {
     bytes32 public constant override MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant override MEMBER_ROLE = keccak256("MEMBER_ROLE");
-    bytes32 public constant FUNDS_MANAGER_ROLE = keccak256("FUNDS_MANAGER_ROLE");
+    bytes32 public constant override FUNDS_MANAGER_ROLE = keccak256("FUNDS_MANAGER_ROLE");
     bytes32 public constant override GUARDIAN_ROLE = keccak256("GUARDIAN_ROLE");
     bytes32 public constant override GOVERN_ROLE = keccak256("GOVERN_ROLE");
     //bytes32 public constant override AUTONOMOUS_PROTOCOL_ROLE = keccak256("AUTONOMOUS_PROTOCOL_ROLE");

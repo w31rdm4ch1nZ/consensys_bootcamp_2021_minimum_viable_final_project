@@ -1,0 +1,355 @@
+{
+  "contractName": "SimpleInvestorVote",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.0+commit.c7dfd78e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/SimpleInvestorsVote.sol\":\"SimpleInvestorVote\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/access/AccessControl.sol\":{\"keccak256\":\"0xb9a137b317dc4806805f2259686186c0c053c32d80fe9c15ecdbf2eb1cf52849\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://8910762bea89696c6dc68a63be98c6ddd597955f8a29418661cc99d0ce090663\",\"dweb:/ipfs/Qmed14MXXFdNYE22bCuVy5XVAMKUo1DncY8BF8VkyrvXmh\"]},\"@openzeppelin/contracts/access/AccessControlEnumerable.sol\":{\"keccak256\":\"0x1304796e9cdc64294735b4222849a240363b2aff374bb58b7c728f8dc0f4aa75\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c87398b4ba8f7c7e6613a5967e5407a5af6807e753d326d5e3b8c29697d33e36\",\"dweb:/ipfs/QmWGzaF9UWB5rNW1h9kvkJaWSf95WkQZ7RVR3bJ24oVgwG\"]},\"@openzeppelin/contracts/access/IAccessControl.sol\":{\"keccak256\":\"0x59ce320a585d7e1f163cd70390a0ef2ff9cec832e2aa544293a00692465a7a57\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://bb2c137c343ef0c4c7ce7b18c1d108afdc9d315a04e48307288d2d05adcbde3a\",\"dweb:/ipfs/QmUxhrAQM3MM3FF5j7AtcXLXguWCJBHJ14BRdVtuoQc8Fh\"]},\"@openzeppelin/contracts/access/IAccessControlEnumerable.sol\":{\"keccak256\":\"0xba4459ab871dfa300f5212c6c30178b63898c03533a1ede28436f11546626676\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3dcc7b09bfa6e18aab262ca372f4a9b1fc82e294b430706a4e1378cf58e6a276\",\"dweb:/ipfs/QmT8oSAcesdctR15HMLhr2a1HRpXymxdjTfdtfTYJcj2N2\"]},\"@openzeppelin/contracts/security/ReentrancyGuard.sol\":{\"keccak256\":\"0x0e9621f60b2faabe65549f7ed0f24e8853a45c1b7990d47e8160e523683f3935\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://287a2f8d5814dd0f05f22b740f18ca8321acc21c9bd03a6cb2203ea626e2f3f2\",\"dweb:/ipfs/QmZRQv9iuwU817VuqkA2WweiaibKii69x9QxYBBEfbNEud\"]},\"@openzeppelin/contracts/token/ERC1155/IERC1155.sol\":{\"keccak256\":\"0x8e93de94c9062ebc94fb7e2e3929b0781ac6a2b7772e2f7a59045861c93e5be9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f920a631bf986c610fe573d3c70a2bb6f224f86f4a8550016470c7ee476c9ab5\",\"dweb:/ipfs/QmYzsyVMfnaREKHcHv5RPS8Xg5r1Q38E2SDsGBTnXeFWzb\"]},\"@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol\":{\"keccak256\":\"0xc743d2235b8854045c308d2f8f1ed88efed6c2bebf2b7a4a51ea42480c82e566\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://05e54e397a053f319187999ef4d65446a7f15f693ddd66dfaed4d856f67dac4e\",\"dweb:/ipfs/QmbGTFVdZxShg76UPcuLAXm6HBjZx3Vn6CL1eaBhV9rST1\"]},\"@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol\":{\"keccak256\":\"0xc17dae2baabdf6f414ee129c3f07324309aaa8ae63297ab55cada28a6969a81b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://80777f3b7c186477704a96b29deb2bce56c281a6618aeda284a2a0f94d635c3c\",\"dweb:/ipfs/QmPrbgsuseYdJ1hmLHZ2dnxdHfqiFHZBqBSZZANwCEjJQr\"]},\"@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol\":{\"keccak256\":\"0x3dd5e1a66a56f30302108a1da97d677a42b1daa60e503696b2bcbbf3e4c95bcb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://0808de0ae4918c664643c885ca7fa6503e8ef2bd75609dfc85152c0128a3422d\",\"dweb:/ipfs/QmNrhFC1XgBKuuxfahFeiwi1MCdu3FLNpHj2uStgmf4iJj\"]},\"@openzeppelin/contracts/token/ERC721/ERC721.sol\":{\"keccak256\":\"0x81c02855bc239e16ec09eee000a8bec691424c715188d6d881037e69c45414c4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://46e3ecc8920aeb78c362a387520fe28e022cdc6d04256d9e5874eb8ff6868b6d\",\"dweb:/ipfs/QmdfCTHrV6CZMGiM3KqGF8tWkdNvGpEmWFyy72X1LAHsz2\"]},\"@openzeppelin/contracts/token/ERC721/IERC721.sol\":{\"keccak256\":\"0x516a22876c1fab47f49b1bc22b4614491cd05338af8bd2e7b382da090a079990\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a439187f7126d31add4557f82d8aed6be0162007cd7182c48fd934dbab8f3849\",\"dweb:/ipfs/QmRPLguRFvrRJS7r6F1bcLvsx6q1VrgjEpZafyeL8D7xZh\"]},\"@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol\":{\"keccak256\":\"0xd5fa74b4fb323776fa4a8158800fec9d5ac0fec0d6dd046dd93798632ada265f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://33017a30a99cc5411a9e376622c31fc4a55cfc6a335e2f57f00cbf24a817ff3f\",\"dweb:/ipfs/QmWNQtWTPhA7Lo8nbxbc8KFMvZwbFYB8fSeEQ3vuapSV4a\"]},\"@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol\":{\"keccak256\":\"0x1f16f9737853b988865ab819d1ebf8b5009defe981c75bc9079e0f40ed2a2e57\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://05e50f827969ca93b0d7bad1e022aa3147c8f390e9f91bb814752e8fbbbe621c\",\"dweb:/ipfs/QmdR2fJ2a3HM7FyC9pGD4JeKF9z6bxqU9FbhMyQfH1sDJH\"]},\"@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol\":{\"keccak256\":\"0x0a79511df8151b10b0a0004d6a76ad956582d32824af4c0f4886bdbdfe5746e5\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://afbedcf17f31db719e6fdc56caa8f458799c5fa2eb94cb1e94ef18f89af85768\",\"dweb:/ipfs/QmVmqRdBfbgYThpZSoAJ5o9mnAMjx8mCHHjv3Rh8cQAAg3\"]},\"@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol\":{\"keccak256\":\"0x1cbe42915bc66227970fe99bc0f783eb1de30f2b48f984af01ad45edb9658698\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2baa08eb67d9da46e6c4c049f17b7684a1c68c5268d0f466cfa0eb23ce2bf9b0\",\"dweb:/ipfs/Qmdnj8zj4PfErB2HM2eKmDt7FrqrhggsZ6Qd8MpD593tgj\"]},\"@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol\":{\"keccak256\":\"0x483f88fbbb1d6d75000fbe8ce14279b5e6121cd5a29ff5f1b91fed407735a6c3\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://51cbe83f9ccd8619d58ca5458ff49c470c656a45856b0e7435eebf5f5d431bf1\",\"dweb:/ipfs/QmZwR7nwu4hzVJW2m3JTPyjUopoxZUxjYLSgcSK5D4F7E2\"]},\"@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol\":{\"keccak256\":\"0x75b829ff2f26c14355d1cba20e16fe7b29ca58eb5fef665ede48bc0f9c6c74b9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a0a107160525724f9e1bbbab031defc2f298296dd9e331f16a6f7130cec32146\",\"dweb:/ipfs/QmemujxSd7gX8A9M8UwmNbz4Ms3U9FG9QfudUgxwvTmPWf\"]},\"@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol\":{\"keccak256\":\"0x0108bf6a6ebd5f96678bed33a35947537263f96766131ee91461fb6485805028\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ae2d274bf3d56a6d49a9bbd0a4871c54997a82551eb3eb1c0c39dc98698ff8bf\",\"dweb:/ipfs/QmTT7ty5DPGAmRnx94Xu3TUDYGSPDVLN2bppJAjjedrg1e\"]},\"@openzeppelin/contracts/utils/Address.sol\":{\"keccak256\":\"0x51b758a8815ecc9596c66c37d56b1d33883a444631a3f916b9fe65cb863ef7c4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://997ca03557985b3c6f9143a18b6c3a710b3bc1c7f189ee956d305a966ecfb922\",\"dweb:/ipfs/QmQaD3Wb62F88SHqmpLttvF6wKuPDQep2LLUcKPekeRzvz\"]},\"@openzeppelin/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"@openzeppelin/contracts/utils/Counters.sol\":{\"keccak256\":\"0xf0018c2440fbe238dd3a8732fa8e17a0f9dce84d31451dc8a32f6d62b349c9f1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://59e1c62884d55b70f3ae5432b44bb3166ad71ae3acd19c57ab6ddc3c87c325ee\",\"dweb:/ipfs/QmezuXg5GK5oeA4F91EZhozBFekhq5TD966bHPH18cCqhu\"]},\"@openzeppelin/contracts/utils/Strings.sol\":{\"keccak256\":\"0x32c202bd28995dd20c4347b7c6467a6d3241c74c8ad3edcbb610cd9205916c45\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://8179c356adb19e70d6b31a1eedc8c5c7f0c00e669e2540f4099e3844c6074d30\",\"dweb:/ipfs/QmWFbivarEobbqhS1go64ootVuHfVohBseerYy9FTEd1W2\"]},\"@openzeppelin/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0xd10975de010d89fd1c78dc5e8a9a7e7f496198085c151648f20cba166b32582b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fb0048dee081f6fffa5f74afc3fb328483c2a30504e94a0ddd2a5114d731ec4d\",\"dweb:/ipfs/QmZptt1nmYoA5SgjwnSgWqgUSDgm4q52Yos3xhnMv3MV43\"]},\"@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f\",\"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy\"]},\"@openzeppelin/contracts/utils/math/SafeMath.sol\":{\"keccak256\":\"0xa2f576be637946f767aa56601c26d717f48a0aff44f82e46f13807eea1009a21\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://973868f808e88e21a1a0a01d4839314515ee337ad096286c88e41b74dcc11fc2\",\"dweb:/ipfs/QmfYuZxRfx2J2xdk4EXN7jKg4bUYEMTaYk9BAw9Bqn4o2Y\"]},\"@openzeppelin/contracts/utils/structs/EnumerableSet.sol\":{\"keccak256\":\"0x9772845c886f87a3aab315f8d6b68aa599027c20f441b131cd4afaf65b588900\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ad2f29a9c17a4f746416c9e254e17671f43c409dbfa6e4d7d76c3e4a83212d31\",\"dweb:/ipfs/QmTqU65L6iu6yqmXKzcNLPioR8etzKPWycpDJCm17ifVdS\"]},\"project:/contracts/FundsManager.sol\":{\"keccak256\":\"0xbd7024007bc5cb8acb7a24b4801ed08913263f5b41549bc76fa7daec362715a9\",\"license\":\"GPL-3.0-or-later\",\"urls\":[\"bzz-raw://3d4b82590b46cd448b56facb9d35be2da380ebb669259d73e1484f4f66093d28\",\"dweb:/ipfs/QmapnK3CeFCcJ3Rm84s6dNhGRrkPZF4fzdsHTiF2gTU7DS\"]},\"project:/contracts/IPermissions.sol\":{\"keccak256\":\"0x406513e96baadc92af8825a4b208fc83e6030d04f33fe3076a14a27955ee207a\",\"license\":\"GPL-3.0-or-later\",\"urls\":[\"bzz-raw://7fba211de9292b77a3f1135d49278bd0edf09106b8dfa6a0e24ff3173b4992ef\",\"dweb:/ipfs/QmSENHkrRecPDgAQhUw5i9kgayXVkPafH4u9DZAPpejhke\"]},\"project:/contracts/IPermissionsRead.sol\":{\"keccak256\":\"0xd41ee37e6e1b50461b76c95c17433a4736a998dbb9da617a1a92f62c40c130b4\",\"license\":\"GPL-3.0-or-later\",\"urls\":[\"bzz-raw://5726ce4ba59e1fa3353614f5a9d73b21bfb3b4273cb86d7af719b3945457ac1f\",\"dweb:/ipfs/QmTdQkRd78FjPnrZ5JtVfCiBxcspjWBdS4B7hu6vL9mDcP\"]},\"project:/contracts/IRequestForContent.sol\":{\"keccak256\":\"0xa047c2657af9750a739e6eed2ed04958803aa051aadcc3e2f479f68561854bb5\",\"license\":\"GPL-3.0-or-later\",\"urls\":[\"bzz-raw://f43cd24b43846dcba24d2979fa5b342b3fae0807ac5593937fc487fcf05c5fe5\",\"dweb:/ipfs/QmSNpcppFbGCB1vw6gN927UjMKv2HHEKyWJJxnjeGMpGVw\"]},\"project:/contracts/Permissions.sol\":{\"keccak256\":\"0x5dcec7fe4986739181d107c4ae29c62aebb17ae5c53dfefc33965038b6f2936e\",\"license\":\"GPL-3.0-or-later\",\"urls\":[\"bzz-raw://8369305b97479f8f6c5ad61627cade5f6d5f69d8635e25905faf12ccb221af41\",\"dweb:/ipfs/QmPf7Xy2Ds9B7GEZ1oh4wjQMoRbVTpi1YxPtySv1e627tj\"]},\"project:/contracts/RequestForContent.sol\":{\"keccak256\":\"0x73876808e232b322b91ef11aa0847cfdbc11e0690ef5c06061f60e1da27ec280\",\"license\":\"GPL-3.0-or-later\",\"urls\":[\"bzz-raw://315b241060af193fa492f826be55647f58edf0f37a66d4d1a7a1e2923d063a71\",\"dweb:/ipfs/QmUqbRyMHYdcPobuR2djiqJnNQLdS7BrcoJcGuuwVsZ6ou\"]},\"project:/contracts/RfCEscrow.sol\":{\"keccak256\":\"0x88ef7a22e414dba845390c86098d673a0792e410b2c8db47b9d26b3ea9207261\",\"license\":\"GPL-3.0-or-later\",\"urls\":[\"bzz-raw://70a8888b97f8522dc50e02d65c69bf6940acfd704b81894ad9d34131f5c85d0e\",\"dweb:/ipfs/QmSuPhUwSiuBhUwEh2tfYqMBAyccgxjzagQ6okbcfdwuHb\"]},\"project:/contracts/SimpleInvestorsVote.sol\":{\"keccak256\":\"0x245ed8bcaaede84268c02e09d58c660e7538d9cf2f132f97f54d5166d33add0c\",\"license\":\"GPL-3.0-or-later\",\"urls\":[\"bzz-raw://07e1fccf0d1e3995e731d4df7c7b611da5f833021803a81fc2f1cf49e9e49da8\",\"dweb:/ipfs/QmbtimSRFxZbtyreuNXQnx4TUaK2GBeNRQhwjS4GwcdQ2G\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220e35a240a4c6a85688c8c1bb730bb565a2369cd9e9b27e992992da48d9ca8e59c64736f6c63430008000033",
+  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220e35a240a4c6a85688c8c1bb730bb565a2369cd9e9b27e992992da48d9ca8e59c64736f6c63430008000033",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "128:3112:35:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "128:3112:35:-:0;;;;;",
+  "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity ^0.8.0;\n\nimport \"./FundsManager.sol\";\nimport \"./Permissions.sol\";\n\ncontract SimpleInvestorVote {\n\n//     //Investors lock funds (same amount as the proposer) or \n//     //  investors having already \"security deposit\" (locked funds) can signal their interest for the RfC by having ready \n//     //  the amount of their safe deposit (or adding same amount) to be locked/commited to the RfC production (that is funds locked for a minimum of 30 days\n//     //  and in the event of success acceptance of the RfC and successfull  CP selection, funds are approved already to be used for the RfC production)\n    \n//     address public instanceFundsManagerContract /*= address*/; \n//     address public instanceRfCContract;\n\n//     mapping (address => bool) statusRfCinProposal = false;\n\n\n//     // modifier onlyInProposal{\n//     //     require(statusRfCinProposal == true, \"This is not a request for content that is issued for the voting round.\");\n//     //     _;\n//     // }\n\n//     modifier onlyInvestor() {\n//         require(instanceFundsManagerContract.amountUserDepositCommitedToTheProtocol > 0.1, \"The user did not invest in the protocol yet\");\n//         _;\n//     }\n\n//     // function approveSecurityDepositForRfC(address _investor, uint256 _deposit, uint256 _RfCid) private onlyInvestor {\n\n//     //     //check again this logic (basically logic of a safe deposit => locked funds + a defined amount locked + time locked)\n//     //     require(_investor.balance >= _deposit, \"not enough funds\");\n//     //     require(instanceFundsManagerContract.madeSafeDeposit == locked, \"no safe deposit\");\n//     //     require(_deposit == instanceFundsManagerContract.securityDeposit, \"the investor can't vote as she does not have the amount requried as security deposit available and approved for this RfC\");\n\n//     //     commitFundsToRfC(_investor, _deposit);\n//     // }\n\n//     // function commitFundsToRfC(address _investor, uint256 _amount) internal {\n        \n//     //     if (instanceFundsManagerContract.securityDeposit) {\n//     //         if (instanceFundsManagerContract.securityDepositIsCommitedToAnRfC == false) {    \n//     //             instanceFundsManagerContract.rfcFund += _investor[safeDeposit];\n//     //             //_investor.\n//     //         }\n//     //         else {\n//     //             //check if amount includes a safeDeposit amount\n//     //             require(_amount >= instanceFundsManagerContract.securityDeposit);\n//     //             balance[_investor] -= _amount;\n//     //             instanceFundsManagerContract.\n\n//     //             instanceFundsManagerContract.rfcFund += 300;\n//     //         }\n\n//     //         signalInterest(_investor);\n//     //     }\n//     //     else if (instanceFundsManagerContract.securityDeposit ){\n//     //         //...\n//     //     }\n//     // }\n\n//     function signalInterest(address _investor, uint256 _deposit) internal payable {\n//         require(_investor.balance >= _deposit, \"not enough funds\");\n        \n//         _investor.balance -= _deposit;\n//         address(instanceFundsManagerContract).balance += _deposit;\n\n//         instanceFundsManagerContract.rfcFund += 300;\n\n//     }\n\n}",
+  "sourcePath": "/home/w31rdm4ch1n3s/ConsenSys_dev_bootcamp/final_project/consensys_bootcamp_2021_minimum_viable_final_project/contracts/SimpleInvestorsVote.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/SimpleInvestorsVote.sol",
+    "exportedSymbols": {
+      "AccessControl": [
+        308
+      ],
+      "AccessControlEnumerable": [
+        433
+      ],
+      "Address": [
+        2662
+      ],
+      "Context": [
+        2684
+      ],
+      "Counters": [
+        2758
+      ],
+      "ERC1155Holder": [
+        785
+      ],
+      "ERC1155Receiver": [
+        819
+      ],
+      "ERC165": [
+        2985
+      ],
+      "ERC721": [
+        1650
+      ],
+      "ERC721Burnable": [
+        1814
+      ],
+      "ERC721Enumerable": [
+        2152
+      ],
+      "ERC721Holder": [
+        2365
+      ],
+      "ERC721URIStorage": [
+        2280
+      ],
+      "EnumerableSet": [
+        3908
+      ],
+      "FundsManager": [
+        4632
+      ],
+      "IAccessControl": [
+        506
+      ],
+      "IAccessControlEnumerable": [
+        531
+      ],
+      "IERC1155": [
+        693
+      ],
+      "IERC1155Receiver": [
+        734
+      ],
+      "IERC165": [
+        2997
+      ],
+      "IERC721": [
+        1766
+      ],
+      "IERC721Enumerable": [
+        2311
+      ],
+      "IERC721Metadata": [
+        2338
+      ],
+      "IERC721Receiver": [
+        1784
+      ],
+      "IPermissions": [
+        4731
+      ],
+      "IPermissionsRead": [
+        4770
+      ],
+      "IRequestForContent": [
+        4785
+      ],
+      "Permissions": [
+        5171
+      ],
+      "ReentrancyGuard": [
+        571
+      ],
+      "RequestForContent": [
+        5510
+      ],
+      "RfCEscrow": [
+        5513
+      ],
+      "SafeMath": [
+        3309
+      ],
+      "SimpleInvestorVote": [
+        5531
+      ],
+      "Strings": [
+        2961
+      ]
+    },
+    "id": 5532,
+    "license": "GPL-3.0-or-later",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 5528,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "45:23:35"
+      },
+      {
+        "absolutePath": "project:/contracts/FundsManager.sol",
+        "file": "./FundsManager.sol",
+        "id": 5529,
+        "nodeType": "ImportDirective",
+        "scope": 5532,
+        "sourceUnit": 4633,
+        "src": "70:28:35",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "project:/contracts/Permissions.sol",
+        "file": "./Permissions.sol",
+        "id": 5530,
+        "nodeType": "ImportDirective",
+        "scope": 5532,
+        "sourceUnit": 5172,
+        "src": "99:27:35",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 5531,
+        "linearizedBaseContracts": [
+          5531
+        ],
+        "name": "SimpleInvestorVote",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 5532,
+        "src": "128:3112:35"
+      }
+    ],
+    "src": "45:3195:35"
+  },
+  "legacyAST": {
+    "absolutePath": "project:/contracts/SimpleInvestorsVote.sol",
+    "exportedSymbols": {
+      "AccessControl": [
+        308
+      ],
+      "AccessControlEnumerable": [
+        433
+      ],
+      "Address": [
+        2662
+      ],
+      "Context": [
+        2684
+      ],
+      "Counters": [
+        2758
+      ],
+      "ERC1155Holder": [
+        785
+      ],
+      "ERC1155Receiver": [
+        819
+      ],
+      "ERC165": [
+        2985
+      ],
+      "ERC721": [
+        1650
+      ],
+      "ERC721Burnable": [
+        1814
+      ],
+      "ERC721Enumerable": [
+        2152
+      ],
+      "ERC721Holder": [
+        2365
+      ],
+      "ERC721URIStorage": [
+        2280
+      ],
+      "EnumerableSet": [
+        3908
+      ],
+      "FundsManager": [
+        4632
+      ],
+      "IAccessControl": [
+        506
+      ],
+      "IAccessControlEnumerable": [
+        531
+      ],
+      "IERC1155": [
+        693
+      ],
+      "IERC1155Receiver": [
+        734
+      ],
+      "IERC165": [
+        2997
+      ],
+      "IERC721": [
+        1766
+      ],
+      "IERC721Enumerable": [
+        2311
+      ],
+      "IERC721Metadata": [
+        2338
+      ],
+      "IERC721Receiver": [
+        1784
+      ],
+      "IPermissions": [
+        4731
+      ],
+      "IPermissionsRead": [
+        4770
+      ],
+      "IRequestForContent": [
+        4785
+      ],
+      "Permissions": [
+        5171
+      ],
+      "ReentrancyGuard": [
+        571
+      ],
+      "RequestForContent": [
+        5510
+      ],
+      "RfCEscrow": [
+        5513
+      ],
+      "SafeMath": [
+        3309
+      ],
+      "SimpleInvestorVote": [
+        5531
+      ],
+      "Strings": [
+        2961
+      ]
+    },
+    "id": 5532,
+    "license": "GPL-3.0-or-later",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 5528,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "45:23:35"
+      },
+      {
+        "absolutePath": "project:/contracts/FundsManager.sol",
+        "file": "./FundsManager.sol",
+        "id": 5529,
+        "nodeType": "ImportDirective",
+        "scope": 5532,
+        "sourceUnit": 4633,
+        "src": "70:28:35",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "project:/contracts/Permissions.sol",
+        "file": "./Permissions.sol",
+        "id": 5530,
+        "nodeType": "ImportDirective",
+        "scope": 5532,
+        "sourceUnit": 5172,
+        "src": "99:27:35",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 5531,
+        "linearizedBaseContracts": [
+          5531
+        ],
+        "name": "SimpleInvestorVote",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 5532,
+        "src": "128:3112:35"
+      }
+    ],
+    "src": "45:3195:35"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.0+commit.c7dfd78e.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.4",
+  "updatedAt": "2022-02-02T17:30:20.553Z",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

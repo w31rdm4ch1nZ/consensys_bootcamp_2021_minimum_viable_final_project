@@ -1,20 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-//import "@openzeppelin/contracts/access/AccessControl.sol";
+//import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";  // => quick double check to se how to use it (modifier or other stuff?)
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
+//import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+//import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
 import "./RequestForContent.sol";
 import "./RfCEscrow.sol";
 // for defining role-based access control:
 import "./Permissions.sol";
-contract FundsManager is Permissions, Initializable, ReentrancyGuard {
+contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     
     //using Counters for Counters.Counter;
-    using SafeERC20 for IERC20; // shouldn't be needed in 1st iteration as I limit ERC20-like to ether... or you make the choice to use WETH to simplify how you deal with tokens
+    //using SafeERC20 for IERC20; // shouldn't be needed in 1st iteration as I limit ERC20-like to ether... or you make the choice to use WETH to simplify how you deal with tokens
                                 // and stay in the ERC20 standards and the reuse is enables instead of coding you own custom logic for every crypto-asset (especially since
                                 //  you intend to only use stablecoins in the end)
     //Counters.Counter private id;
@@ -127,7 +126,7 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
 
     event FundsCommittedToRfC(address user, uint256 rfcId, uint256 unlockDate);
 
-    function init() external initializer {
+    constructor() {
         //test pre-game (to disappear)
         
         //Define roles of the pattern access control
@@ -171,12 +170,12 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
     function setRfCTokenAddr(uint256 _id, address _rfc) internal {
         //tokenRfCAddr[_id] = ?? => address of the minted token
     }
-    function getAmountUserDepositForRfC(address _account, uint256 _amount, uint256 _RfCid) public returns (uint256 amount) {
+    function getAmountUserDepositForRfC(address _account, uint256 _amount, uint256 _RfCid) public view returns (uint256 amount) {
         return investorAmountToSpecificRfC[_account][_RfCid];
     }
 
     //nee to increment this number at every invest & CP deposit
-    function getTotalAmountUserDepositToTheProtocol(address _user, uint256 _amount) external view returns (uint256) {
+    function setTotalAmountUserDepositToTheProtocol(address _user, uint256 _amount) external returns (uint256) {
 
         return totalAmountUserDepositToTheProtocol[_user] += _amount;  // => gives us the total amount invested by an account in the protocol
     }
@@ -343,7 +342,7 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
     /** Interactions with RequestForContent contract: **/
 
     // likely replaced by the Counter contract inherited from openzeppelin
-    function getRfCid(address _investorOrCP) external view returns (uint256){
+    function getRfCid(address _investorOrCP) external returns (uint256){
         
         return rfcInstanceContract.getRfCTracker();
     }

@@ -1,0 +1,113 @@
+{
+  "contractName": "RfCEscrow",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.0+commit.c7dfd78e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/RfCEscrow.sol\":\"RfCEscrow\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/RfCEscrow.sol\":{\"keccak256\":\"0x88ef7a22e414dba845390c86098d673a0792e410b2c8db47b9d26b3ea9207261\",\"license\":\"GPL-3.0-or-later\",\"urls\":[\"bzz-raw://70a8888b97f8522dc50e02d65c69bf6940acfd704b81894ad9d34131f5c85d0e\",\"dweb:/ipfs/QmSuPhUwSiuBhUwEh2tfYqMBAyccgxjzagQ6okbcfdwuHb\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220e6c2ee75f19630d9cd1840edeb973c10552e72065cab471ae9aedea6046bbd5f64736f6c63430008000033",
+  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220e6c2ee75f19630d9cd1840edeb973c10552e72065cab471ae9aedea6046bbd5f64736f6c63430008000033",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "143:1044:39:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "143:1044:39:-:0;;;;;",
+  "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity ^0.8.0;\n\n//import \"@openzeppelin/contracts/access/AccessControlEnumerable.sol\";\n\n\ncontract RfCEscrow {\n\n\n    // function depositERC721(\n    //     address tokenAddress,\n    //     uint256 tokenId,\n    //     uint256 bundleId\n    // ) external override {\n    //     require(_exists(bundleId), \"Bundle does not exist\");\n\n    //     IERC721(tokenAddress).safeTransferFrom(_msgSender(), address(this), tokenId);\n\n    //     bundleERC721Holdings[bundleId].push(ERC721Holding(tokenAddress, tokenId));\n    //     emit DepositERC721(_msgSender(), bundleId, tokenAddress, tokenId);\n    // }\n\n\n    // function depositERC1155(\n    //     address tokenAddress,\n    //     uint256 tokenId,\n    //     uint256 amount,\n    //     uint256 bundleId\n    // ) external override {\n    //     require(_exists(bundleId), \"Bundle does not exist\");\n\n    //     IERC1155(tokenAddress).safeTransferFrom(_msgSender(), address(this), tokenId, amount, \"\");\n\n    //     bundleERC1155Holdings[bundleId].push(ERC1155Holding(tokenAddress, tokenId, amount));\n    //     emit DepositERC1155(_msgSender(), bundleId, tokenAddress, tokenId, amount);\n    // }\n\n\n\n\n}",
+  "sourcePath": "/home/w31rdm4ch1n3s/ConsenSys_dev_bootcamp/final_project/consensys_bootcamp_2021_minimum_viable_final_project/contracts/RfCEscrow.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/RfCEscrow.sol",
+    "exportedSymbols": {
+      "RfCEscrow": [
+        5816
+      ]
+    },
+    "id": 5817,
+    "license": "GPL-3.0-or-later",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 5815,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "45:23:39"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 5816,
+        "linearizedBaseContracts": [
+          5816
+        ],
+        "name": "RfCEscrow",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 5817,
+        "src": "143:1044:39"
+      }
+    ],
+    "src": "45:1142:39"
+  },
+  "legacyAST": {
+    "absolutePath": "project:/contracts/RfCEscrow.sol",
+    "exportedSymbols": {
+      "RfCEscrow": [
+        5816
+      ]
+    },
+    "id": 5817,
+    "license": "GPL-3.0-or-later",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 5815,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "45:23:39"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 5816,
+        "linearizedBaseContracts": [
+          5816
+        ],
+        "name": "RfCEscrow",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 5817,
+        "src": "143:1044:39"
+      }
+    ],
+    "src": "45:1142:39"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.0+commit.c7dfd78e.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.4",
+  "updatedAt": "2022-02-02T17:26:08.612Z",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

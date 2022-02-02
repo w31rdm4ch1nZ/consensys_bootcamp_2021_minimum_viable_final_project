@@ -1,15 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later  
 
-// Copied from FEI protocol as I like how they use the Openzeppelin library
-// and yet add some flexibility and a concrete series of example that allow me to adapt it: 
+// Heavily built on FEI protocol implementation of the openzeppelin RBAC implmentation 
 //  https://github.com/fei-protocol/fei-protocol-core/blob/develop/contracts/core/Permissions.sol
-
-/**
-
-    >>> Update comments on parmas and functions
-
- */
-
 
 pragma solidity ^0.8.0;
 
@@ -73,12 +65,6 @@ contract Permissions is IPermissions, AccessControlEnumerable {
         grantRole(MINTER_ROLE, minter);
     }
 
-    /// @notice grants burner role to address
-    /// @param burner new burner
-    // function grantBurner(address burner) external override onlyGovernor {
-    //     grantRole(BURNER_ROLE, burner);
-    // }
-
     /// @notice grants member role to address
     /// @param member new member
      function grantMember(address member) external override onlyGovernor {
@@ -86,7 +72,7 @@ contract Permissions is IPermissions, AccessControlEnumerable {
     }
 
     /// @notice grants Funds Manager Proxy role to address
-    /// @param pcvController new controller
+    /// @param fmProxy new FM contract instance address / FMProxy
     function grantFMProxy(address fmProxy)
         external
         override
@@ -113,14 +99,14 @@ contract Permissions is IPermissions, AccessControlEnumerable {
         revokeRole(MINTER_ROLE, minter);
     }
 
-    /// @notice revokes burner role from address
-    /// @param burner ex burner
+    /// @notice revokes member role from address
+    /// @param member ex member
     function revokeMember(address member) external override onlyGovernor {
         revokeRole(MEMBER_ROLE, member);
     }
 
-    /// @notice revokes FMProxy role from address
-    /// @param pcvController ex pcvController
+    /// @notice revokes FMProxy role from address of currently used instance in the protocol
+    /// @param fmProxy ex fmProxy
     function revokeFMProxy(address fmProxy)
         external
         override

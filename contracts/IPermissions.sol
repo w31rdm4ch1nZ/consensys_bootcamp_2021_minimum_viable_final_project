@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./IPermissionsRead.sol";
 
 /// @title Permissions interface
-/// @author Fei Protocol
+/// @author w31rdm4ch1nz
 interface IPermissions is IAccessControl, IPermissionsRead {
     // ----------- Governor only state changing api -----------
 

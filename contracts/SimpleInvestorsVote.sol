@@ -1,10 +1,10 @@
-// // SPDX-License-Identifier: GPL-3.0-or-later
-// pragma solidity ^0.8.0;
+// SPDX-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.8.0;
 
-// import "./FundsManager.sol";
-// import "./Permissions.sol";
+import "./FundsManager.sol";
+import "./Permissions.sol";
 
-// contract SimpleInvestorVote {
+contract SimpleInvestorVote {
 
 //     //Investors lock funds (same amount as the proposer) or 
 //     //  investors having already "security deposit" (locked funds) can signal their interest for the RfC by having ready 
@@ -70,4 +70,4 @@
 
 //     }
 
-// }
+}

@@ -12,11 +12,12 @@ import "./RfCEscrow.sol";
 // for defining role-based access control:
 import "./Permissions.sol";
 contract FundsManager is Permissions, Initializable, ReentrancyGuard {
-
+    
+    //using Counters for Counters.Counter;
     using SafeERC20 for IERC20; // shouldn't be needed in 1st iteration as I limit ERC20-like to ether... or you make the choice to use WETH to simplify how you deal with tokens
                                 // and stay in the ERC20 standards and the reuse is enables instead of coding you own custom logic for every crypto-asset (especially since
                                 //  you intend to only use stablecoins in the end)
-
+    //Counters.Counter private id;
     //Protocols Contracts deployed through minting this contract:
     RequestForContent private rfcInstanceContract = new RequestForContent(); 
     RfCEscrow private escrowRfCContract = new RfCEscrow();
@@ -33,7 +34,7 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
 
     mapping(address => uint256) private depositStartTime;    // to use only for cases different from safe deposits => use a specific state variable for both
     mapping(address => uint256) private memberSafeDepositStartTime;
-    uint256 private maturationTime;   // used for calculation of the allowed withdraw time
+    mapping(address => uint256) private maturationTime;
 
     // allows to track the amount of one investor in one RfC (can have several investments):
     // investor address => RfCid => amount   
@@ -72,7 +73,7 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
     mapping (address => mapping(uint256 => uint256)) private shareRatioOfRfC; 
     uint256 private ratio;
 
-    
+    mapping(address => mapping(uint256 => uint256)) private rfcNFTTokenIdFundAmount;
 
     //a value that says when a RfC is passes the proposal round and is now in "processing" (by a CP) status:
     // => this value should be returned to this contract by the contract implementing the proposal logic
@@ -123,6 +124,8 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
     event InvestmentRedeemed(address indexed _investor, uint256 indexed _rfcId, uint256 _amount);
 
     event InvestorSharesMinted();
+
+    event FundsCommittedToRfC(address user, uint256 rfcId, uint256 unlockDate);
 
     function init() external initializer {
         //test pre-game (to disappear)
@@ -267,14 +270,14 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
         emit WithdrawSafeDeposit(msg.sender, true);
     }
 
-    function getPooledRfCamount(uint256 _RfCid) public view returns(uint256 rfcPoolAmount) {
-        // TO DO
-    }
+    // function getPooledRfCamount(uint256 _RfCid) public view returns(uint256 rfcPoolAmount) {
+    //     // TO DO
+    // }
 
-    function allocateFundsToRfC(address _user,uint256 _id, uint256 _unlockDate) public onlyMember returns(uint256 totalAmount) {
-        //TO DO
+    // function allocateFundsToRfC(address _user,uint256 _id, uint256 _startDepositTimer) public onlyMember returns(uint256 totalAmount) {
+    //     //TO DO
         
-    }
+    // }
 
     // again by seting the scope to private I only allow a function from this contract (does not mean it can't be abused if not careful...)
     function lockSafeDeposit(address _user)private  onlyFMProxy {
@@ -317,8 +320,8 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
         //(bool success, bytes data) = msg.sender.call{value: amount}("");
 
         // contract balance updated followed by user
-        address(this).balance -= investorAmountToSpecificRfC[_account][_rfcId];
-        _account.balance += investorAmountToSpecificRfC[_account][_rfcId];
+        balance[ address(this)] -= investorAmountToSpecificRfC[_account][_rfcId];
+        balance[_account] += investorAmountToSpecificRfC[_account][_rfcId];
         //require(success, "Transfer failed.");
 
         emit InvestmentRedeemed(_account, _rfcId, investorAmountToSpecificRfC[_account][_rfcId]);
@@ -329,7 +332,7 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
         //  but that will change their status back ti users, or RfCIdInvestor = false), they 
         //  will call another function to access content, if needed, that encodes the logic of their shares
         //  in the content, etc. 
-        require(membershipStatus == true, "Any protocol's user must first make a safe deposit of 0.1 ether");
+        require(membershipStatus[msg.sender] == true, "Any protocol's user must first make a safe deposit of 0.1 ether");
         require(investorAmountToSpecificRfC[msg.sender][_rfcId] == 0, "The user has already invested in this RfC, then he/she/they don't need an to pay to access the content");
 
         //should return a token that gives them all data/authorization to access content
@@ -340,10 +343,9 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
     /** Interactions with RequestForContent contract: **/
 
     // likely replaced by the Counter contract inherited from openzeppelin
-    function getRfCid(address _investorOrCP, uint256 _id) external view {
-        require(_id >= 0, "id is invalid number");
-
-        return rfcInstanceContract.getRfCid(_id);
+    function getRfCid(address _investorOrCP) external view returns (uint256){
+        
+        return rfcInstanceContract.getRfCTracker();
     }
 
     function setRfCIdFund(uint256 _id) public {
@@ -351,11 +353,22 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
         
     }
 
-    function commitFundsToRfC(uint256 _id, uint256 _amount) internal  {
+    function commitFundsToRfC(address _user, uint256 _rfcId, address _rfcTokenAddr, uint256 _amount) internal returns (uint256) {
         // way to lock/commit an amount to a specific NFT
 
+        // make sure the user authorize a certain amount 
+        investorAmountToSpecificRfC[_user][_rfcId] -= _amount;
+        
         //sum of all funds allocated to an RfC token:
-        return allocateFundsToRfC();
+        rfcNFTTokenIdFundAmount[_rfcTokenAddr][_rfcId] += _amount;
+
+        //calculate unlockdate:
+        maturationTime[_user] = memberSafeDepositStartTime[_user] + 60 days + MIN_ESCROW_TIME;  // investing in a content production lead to vest investmenet on 3 months
+                                                                                                    // ideally, part of it will be unlocked progressively on the timeline of the content delivery
+
+        emit FundsCommittedToRfC(_user, _rfcId, maturationTime[_user]);
+
+        return rfcNFTTokenIdFundAmount[_rfcTokenAddr][_rfcId];
     }
 
     //Default functions in case of accidental crypto sent to the contract => revert => INCLUDE THE revert() logic in

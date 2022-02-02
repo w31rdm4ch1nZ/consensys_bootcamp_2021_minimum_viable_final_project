@@ -7,26 +7,27 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 //import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/utils/Arrays.sol";
+import "@openzeppelin/contracts/utils/Arrays.sol";  // not used so far
 
 // for defining role-based access control:
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "./FundsManager.sol";
 import "./Permissions.sol";
+import "./IRequestForContent.sol";
 
-contract RequestForContent is ERC721Enumerable {          
+contract RequestForContent is Permissions, /*IRequestForContent,*/ ERC721 {          
 
     using Counters for Counters.Counter;
     using SafeMath for uint256;
 
     Counters.Counter private tokenIdTracker;
+    
+    mapping (address => Counters.Counter) private rfcNFTTokenAddressAssociatedID;
 
     //bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     // It is a role that is aimed at allowing FundsManager contract to make inter-contracts calls, avoiding any direct users and others (potentially malicious contract)
@@ -226,7 +227,8 @@ contract RequestForContent is ERC721Enumerable {
 
     event RfCProposal(address proposer, bool success);
 
-    event RfCMinted(address indexed RfCToken, uint256 RfCidCounter);
+    event RfCMinted(address indexed RfCTokenAddress, uint256 RfCidCounter); // => get the token address through web3.js and keep a dynamic array of the NFT address and Ids, so you can use this 
+                                                                            //  data somewhere else in the contract
 
     //event RfCCPselected();
 
@@ -250,18 +252,39 @@ contract RequestForContent is ERC721Enumerable {
         //owner = msg.sender;
     }
 
+    // avoid err double inheritance of supportsInterface in this contract 
+    function supportsInterface(bytes4 interfaceId) 
+    public 
+    view 
+    virtual 
+    override(
+        ERC721, 
+        AccessControlEnumerable
+        ) 
+        returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+
+    function getRfCTracker() external onlyFMProxy returns (uint256) { 
+        return tokenIdTracker.current();
+    }
+
+    function getRfCNFTTokenAddress(uint256 _rfcId) internal returns (address) {
+        //return 
+    }
+
     function _baseURI() internal pure override returns (string memory) {
         return "ipfs://blabla_masterpiece_genart_by_supadupaNFTstar.mp4";
     }
 
 
-    // function safeMint(address to) external onlyOwner {
-    //     uint256 tokenId = tokenIdTracker.current();
-    //     tokenIdTracker.increment();
-    //     _safeMint(to, tokenId);
+    function safeMint(address to) external onlyFMProxy {
+        uint256 tokenId = tokenIdTracker.current();
+        tokenIdTracker.increment();
+        _safeMint(to, tokenId);
 
-    //     emit SucessfullyMinted(to, tokenId, block.timestamp);   // "now" gives the time in unix standard = make a conversion in your js
-    // }
+        emit SucessfullyMinted(to, tokenId, block.timestamp);   // "now" gives the time in unix standard = make a conversion in your js
+    }
 
     // The following functions are overrides required by Solidity.
 
@@ -320,7 +343,7 @@ contract RequestForContent is ERC721Enumerable {
         //NFT minted, incorporating the possibilities to be then splitted (as for Gnosis Conditional Tokens)
     }
 
-    function burnRfCInCaseNotPassed(uint256 _tmpRfCId) internal {
+    function burnRfCInCaseNotPassed(uint256 _tmpRfCId) external {
         _burn(_tmpRfCId);
     }
 

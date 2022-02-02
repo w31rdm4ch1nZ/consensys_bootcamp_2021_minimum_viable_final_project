@@ -1,5 +1,5 @@
 // // SPDX-License-Identifier: GPL-3.0-or-later
-// pragma solidity ^0.8.0;
+pragma solidity ^0.8.0;
 
 // import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 // import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
@@ -11,7 +11,7 @@
 
 // /** Eventually leading to an open Content Shares Market is something that is tought of */
 
-// contract InvestorFundSharesOnContent is ERC20, ERC20Burnable, Ownable, ERC20Permit, ERC20Votes, Permissions {
+contract InvestorFundSharesOnContent /**is ERC20, ERC20Burnable, Ownable, ERC20Permit, ERC20Votes, Permissions **/{
 
 //   //use safeERC20
 
@@ -28,4 +28,4 @@
 //       _mint(to, amount);
 //   }
 
-// }
+}

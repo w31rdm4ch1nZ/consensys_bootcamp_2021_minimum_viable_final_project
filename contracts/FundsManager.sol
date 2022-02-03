@@ -18,12 +18,15 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
                                 //  you intend to only use stablecoins in the end)
     //Counters.Counter private id;
     //Protocols Contracts deployed through minting this contract:
-    RequestForContent private rfcInstanceContract = new RequestForContent(); 
-    RfCEscrow private escrowRfCContract = new RfCEscrow();
+    
+    
+    //RequestForContent public rfcInstanceContract = new RequestForContent(); 
+    //RfCEscrow private escrowRfCContract = new RfCEscrow();
 
     address private user;
     //eventually make those 2 state variable the same... => can encompass EOA and contract addresses, no pb.
     address private addr;
+    address private owner;
 
     mapping(address => uint256 ) private balance;
 
@@ -78,18 +81,6 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     // => this value should be returned to this contract by the contract implementing the proposal logic
     bool private hasPassed = false;
 
-   
-    modifier hasFunds{
-        require(user.balance >= msg.value, "The user has not enough funds for the tx to happen");
-        _;
-    }
-
-    // Shoud not be useful since I use now onlyMember and membershipStatus
-    // modifier userHasSecurityDeposit{
-    //     require(userSecurityDepositStatus == true, "The user does not have made the safety deposit that enables to act as investor or content provider");
-    //     _;
-    // }
-
     modifier onlyMember() {
         require(membershipStatus[user] == true, "Permissions: Caller does not have a safe deposit and active membership");
         _;
@@ -102,38 +93,24 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
         _;
     }
 
-    // modifier onlyFMProxy() {
-    //     require(isFMProxy(addres(this)), "Permissions: This call can only be initiated by the actual protocol's instance of FundsManager contract");
-    //     _;
-    // }
-
-    // modifier onlyRFCFactoryContract() {
-    //     require(address(rfcFactoryContract), "this can only be done from the RfC factory contract");
-    //     _;
-    // }
-
+    // you have to order it...
     event MadeSafeDeposit(address indexed member);
 
     event DepositForRfC(address indexed userDepositing, uint256 deposit, uint256 indexed RfCid);
 
     event WithdrawSafeDeposit(address investor, bool success);
 
-    event CPRewardRedeemed(address indexed _cp, uint256 indexed _rfcId, uint256 _amount);
+    event CPRewardRedeemed(address indexed cp, uint256 indexed rfcId, uint256 amount);
 
-    event InvestmentRedeemed(address indexed _investor, uint256 indexed _rfcId, uint256 _amount);
+    event InvestmentRedeemed(address indexed investor, uint256 indexed rfcId, uint256 amount);
 
-    event InvestorSharesMinted();
+    event InvestorSharesMinted(address indexed investor, uint256 amount);
 
     event FundsCommittedToRfC(address user, uint256 rfcId, uint256 unlockDate);
 
     constructor() {
-        //test pre-game (to disappear)
-        
-        //Define roles of the pattern access control
-        _setupRole(FUNDS_MANAGER_ROLE, address(this));
-
-        RequestForContent rfcContract = new RequestForContent();
-
+        //whatever:trying to deploy it successfully (rn, chocking on an OOG error)
+        owner = msg.sender;
     }
 
     //Returns balance of InvestorEscrow contract
@@ -149,89 +126,72 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
 
     function getRfCStatus(uint256 _rfcId) public view returns(bool) {
         //TO DO
+        return true; // to have a woeking code => dummy empty shell so far
     }
 
-    function getRfCFund( address _user, uint256 _rfcId, address  _rfcToken) external view returns(uint256) {
+    function getRfCFundAmount(uint256 _amount, uint256 _rfcId) public view returns(uint256) {
+        address rfcTokenAddress;
+        rfcTokenAddress = getRfCTokenAddress(_rfcId);
+        
+        return rfcNFTTokenIdFundAmount[rfcTokenAddress][_rfcId];
+    }
+
+    function setRfCFundAmount( address _user, uint256 _rfcId, address  _rfcToken, uint256 _amount) internal nonReentrant returns(uint256) {
         require(_rfcId >= 0, "not a valid id");
         require(_rfcToken != address(0), "address can't be 0, the contract has to exist already");
         require(_user != address(0), "invalid EOA");
+        
         address rfcTokenAddress;
         rfcTokenAddress = getRfCTokenAddress(_rfcId);
 
-        //TO DO: get the amount of funds allocated to a specific RfC (maybe you don't need the token address but its id is enough?)
+        //TO DO: get the amount of funds allocated to a specific RfC 
+        return rfcNFTTokenIdFundAmount[rfcTokenAddress][_rfcId] += _amount;
     }
 
     function getRfCTokenAddress(uint256 _rcfId) public view returns (address) {
         // check if RfC exists => RfC should not ever have the same id => check if Counters from openZeppelin gives this certitude... 
         // TO DO
-        return tokenRfCAddr[_rcfId];
+        return tokenRfCAddr[_rcfId];    // should be set when once mint() happens successfully => sort of callback added to the mintn function called on the 
+                                            // RfC NFT contract mint() function.
     }
 
+    // only useful if you can't track the NFT address following their minting (=>RfC.sol contract) 
     function setRfCTokenAddr(uint256 _id, address _rfc) internal {
         //tokenRfCAddr[_id] = ?? => address of the minted token
     }
-    function getAmountUserDepositForRfC(address _account, uint256 _amount, uint256 _RfCid) public view returns (uint256 amount) {
-        return investorAmountToSpecificRfC[_account][_RfCid];
+
+    function getAmountUserDepositForRfC(address _account, uint256 _amount, uint256 _rcfId) public view returns (uint256 amount) {
+        return investorAmountToSpecificRfC[_account][_rcfId];
     }
 
-    //nee to increment this number at every invest & CP deposit
-    function setTotalAmountUserDepositToTheProtocol(address _user, uint256 _amount) external returns (uint256) {
+    //need to increment this number at every invest & CP deposit
+    function setTotalAmountUserDepositToTheProtocol(address _user, uint256 _amount) external nonReentrant returns (uint256) {
 
         return totalAmountUserDepositToTheProtocol[_user] += _amount;  // => gives us the total amount invested by an account in the protocol
     }
 
-    function setTotalAmountUserDepositToTheProtocol(address _user) internal {
+    function setRfCTotalFundAmount(address _account, uint256 _rfcId, uint256 _amount) private {
+        require(investorAmountToSpecificRfC[_account][_rfcId] >= 0, "this account did not dceposit any positive amount of Eth to this RfC");
+
 
     }
 
-    /**FINISH THAT **/
-    // function depositETHandLock() external payable override userHasSecurityDeposit {
-        
-    //     require(msg.value >= securityDeposit, "the amount provided is insufficient to constitute a safetyDeposit");
-
-    //     balance[msg.sender] -= msg.value;
-
-    //     address(this).balance += msg.value;
-
-    //     hasSafetyDeposit[msg.sender] = true;withdrawSafeDeposit(msg.sender, true);
-    //         rfcFund += _investor[safeDeposit];
-    //         //_investor.
-    //     }
-    //     else if () {
-    //         //check if amount includes a safeDeposit amount
-    //         require(_amount >= instanceFundsManagerContract.securityDeposit);
-    //         balance[_investor] -= _amount;
-    //         instanceFundsManagerContract.
-
-    //         instanceFundsManagerContract.rfcFund += 300;
-        
-
-    //     signalInterest(_investor);
-    //     }
-    //     else (instanceFundsManagerContract.securityDeposit ){
-    //         //...
-    //     }
-            
-    //     emit DepositETH(_userDepositing, msg.value);
-    // }
-
-    function investETH(uint256 _rfcId, address _rfcToken) external payable onlyMember {
+    function investETH(uint256 _rfcId, address _rfcToken) external payable onlyMember nonReentrant {
         require(msg.sender.balance >= msg.value, "user doesn't have emough funds => revert");
 
-    
-        //  address(this).balance += msg.value;     ==> NOT USEFUL: msg.value is implicitly added to the contract balance (but check during tests), by simply calling a 
-        //                                              payable function
         depositStartTime[msg.sender] = block.timestamp;
-        //allocateFundsToRfC();
-        //lockFunds(msg.sender);
 
         balance[msg.sender] -= msg.value;
+        
+        //track amount invested by a user on a specific RfC:
+        investorAmountToSpecificRfC[msg.sender][_rfcId] += msg.value;
+
         emit DepositForRfC(msg.sender, msg.value, _rfcId);
 
     } 
 
 
-    function safeDepositForMembership(address _aspiringMember) public payable {
+    function safeDepositForMembership(address _aspiringMember) public payable nonReentrant {
         // to think about: _setupRole(MEMBERS_W_SAFETY_DEPOSIT, member);
         require(msg.sender.balance >= 0, "balance must be positive");  // don't think it is useful...
         require(msg.value == 0.1 ether, "The amount of 0.1 ether is not reached");  // be ready for your exection to err here
@@ -255,7 +215,7 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
         emit MadeSafeDeposit(_aspiringMember);
     } 
 
-    function initiateWithdrawSafeDeposit(address _member) external onlyMember {
+    function initiateWithdrawSafeDeposit(address _member) external onlyMember nonReentrant {
 
         //starts a timer that last about 30 days (check the ) that once done allow direct withdrawal (simplest form I can think of now)
 
@@ -279,7 +239,7 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     // }
 
     // again by seting the scope to private I only allow a function from this contract (does not mean it can't be abused if not careful...)
-    function lockSafeDeposit(address _user)private  onlyFMProxy {
+    function lockSafeDeposit(address _user)private  onlyFMProxy nonReentrant {
         require(safeDepositMade[_user] != true, "The security deposit is already met");
 
         // >>>> check the conversion MIN_ESCROW_TIME to unix time so no bug:
@@ -295,25 +255,20 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
 
     }
 
-    function unlock(address _user, uint256 _amount) private {
+    function unlock(address _user, uint256 _amount) private nonReentrant {
         //call it from another function in this contract either once condition for unlock funds are met, or because the expiration date is reached
-    }
-
-    function withdrawETH() external onlyMember withdrawApproved {
-
-
     }
 
     //specific withdraw (ACTUALLY make it for both cases): when the RfC doesn't pass the investors vote (time of deposit for investors who vote with ether +
     //  15 days):
-    function withdrawFromEscrow(address _account,/* uint256 _amount,*/ uint256 _matureTime, uint256 _rfcId) external onlyMember withdrawApproved {
+    function withdrawFromEscrow(address _account,/* uint256 _amount,*/ uint256 _matureTime, uint256 _rfcId) external onlyMember withdrawApproved nonReentrant {
         require(_matureTime >= block.timestamp, "Escrow period not expired.");  // calculate the 30 days: time of deposit
                                                                                  // (should be recorded in a state variable, like block.timestamp f the tx)
                                                                                  // + 30 days (in linux time format)
                                                                                  // check withdrawApproved to implement part of requirements
 
         //that's a case requiring a burn feature:
-        rfcInstanceContract.burnRfCInCaseNotPassed(_rfcId);
+        //rfcInstanceContract.burnRfCInCaseNotPassed(_rfcId);
 
         
         //(bool success, bytes data) = msg.sender.call{value: amount}("");
@@ -326,7 +281,7 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
         emit InvestmentRedeemed(_account, _rfcId, investorAmountToSpecificRfC[_account][_rfcId]);
     }
 
-    function depositPayAccessContent(uint256 _rfcId, uint256 _amount) external onlyMember {
+    function depositPayAccessContent(uint256 _rfcId, uint256 _amount) external onlyMember nonReentrant {
         //as investors have shares to a content they produce (that they can eventually sell to other users,
         //  but that will change their status back ti users, or RfCIdInvestor = false), they 
         //  will call another function to access content, if needed, that encodes the logic of their shares
@@ -342,10 +297,10 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     /** Interactions with RequestForContent contract: **/
 
     // likely replaced by the Counter contract inherited from openzeppelin
-    function getRfCid(address _investorOrCP) external returns (uint256){
+    // function getRfCid(address _investorOrCP) external returns (uint256){
         
-        return rfcInstanceContract.getRfCTracker();
-    }
+    //     return rfcInstanceContract.getRfCTracker();
+    // }
 
     function setRfCIdFund(uint256 _id) public {
         //sum of all investors' deposits for a certain RfC

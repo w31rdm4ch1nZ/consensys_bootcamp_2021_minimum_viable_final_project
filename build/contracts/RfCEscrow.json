@@ -7,23 +7,23 @@
   "immutableReferences": {},
   "generatedSources": [],
   "deployedGeneratedSources": [],
-  "sourceMap": "143:1044:39:-:0;;;;;;;;;;;;;;;;;;;",
-  "deployedSourceMap": "143:1044:39:-:0;;;;;",
+  "sourceMap": "143:1044:35:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "143:1044:35:-:0;;;;;",
   "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity ^0.8.0;\n\n//import \"@openzeppelin/contracts/access/AccessControlEnumerable.sol\";\n\n\ncontract RfCEscrow {\n\n\n    // function depositERC721(\n    //     address tokenAddress,\n    //     uint256 tokenId,\n    //     uint256 bundleId\n    // ) external override {\n    //     require(_exists(bundleId), \"Bundle does not exist\");\n\n    //     IERC721(tokenAddress).safeTransferFrom(_msgSender(), address(this), tokenId);\n\n    //     bundleERC721Holdings[bundleId].push(ERC721Holding(tokenAddress, tokenId));\n    //     emit DepositERC721(_msgSender(), bundleId, tokenAddress, tokenId);\n    // }\n\n\n    // function depositERC1155(\n    //     address tokenAddress,\n    //     uint256 tokenId,\n    //     uint256 amount,\n    //     uint256 bundleId\n    // ) external override {\n    //     require(_exists(bundleId), \"Bundle does not exist\");\n\n    //     IERC1155(tokenAddress).safeTransferFrom(_msgSender(), address(this), tokenId, amount, \"\");\n\n    //     bundleERC1155Holdings[bundleId].push(ERC1155Holding(tokenAddress, tokenId, amount));\n    //     emit DepositERC1155(_msgSender(), bundleId, tokenAddress, tokenId, amount);\n    // }\n\n\n\n\n}",
   "sourcePath": "/home/w31rdm4ch1n3s/ConsenSys_dev_bootcamp/final_project/consensys_bootcamp_2021_minimum_viable_final_project/contracts/RfCEscrow.sol",
   "ast": {
     "absolutePath": "project:/contracts/RfCEscrow.sol",
     "exportedSymbols": {
       "RfCEscrow": [
-        5816
+        5609
       ]
     },
-    "id": 5817,
+    "id": 5610,
     "license": "GPL-3.0-or-later",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 5815,
+        "id": 5608,
         "literals": [
           "solidity",
           "^",
@@ -31,7 +31,7 @@
           ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "45:23:39"
+        "src": "45:23:35"
       },
       {
         "abstract": false,
@@ -39,32 +39,32 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 5816,
+        "id": 5609,
         "linearizedBaseContracts": [
-          5816
+          5609
         ],
         "name": "RfCEscrow",
         "nodeType": "ContractDefinition",
         "nodes": [],
-        "scope": 5817,
-        "src": "143:1044:39"
+        "scope": 5610,
+        "src": "143:1044:35"
       }
     ],
-    "src": "45:1142:39"
+    "src": "45:1142:35"
   },
   "legacyAST": {
     "absolutePath": "project:/contracts/RfCEscrow.sol",
     "exportedSymbols": {
       "RfCEscrow": [
-        5816
+        5609
       ]
     },
-    "id": 5817,
+    "id": 5610,
     "license": "GPL-3.0-or-later",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 5815,
+        "id": 5608,
         "literals": [
           "solidity",
           "^",
@@ -72,7 +72,7 @@
           ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "45:23:39"
+        "src": "45:23:35"
       },
       {
         "abstract": false,
@@ -80,26 +80,34 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 5816,
+        "id": 5609,
         "linearizedBaseContracts": [
-          5816
+          5609
         ],
         "name": "RfCEscrow",
         "nodeType": "ContractDefinition",
         "nodes": [],
-        "scope": 5817,
-        "src": "143:1044:39"
+        "scope": 5610,
+        "src": "143:1044:35"
       }
     ],
-    "src": "45:1142:39"
+    "src": "45:1142:35"
   },
   "compiler": {
     "name": "solc",
     "version": "0.8.0+commit.c7dfd78e.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "1643822813549": {
+      "events": {},
+      "links": {},
+      "address": "0x334DfE20D95D2F1D460593B3e07Ab177fA7E0B63",
+      "transactionHash": "0xcad435e87c7ff5f363cfbd6485f4dc3616702608de923d21856d774f72467cf6"
+    }
+  },
   "schemaVersion": "3.4.4",
-  "updatedAt": "2022-02-02T17:26:08.612Z",
+  "updatedAt": "2022-02-03T18:00:58.327Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},

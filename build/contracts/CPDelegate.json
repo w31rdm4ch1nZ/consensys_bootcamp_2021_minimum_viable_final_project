@@ -7,23 +7,23 @@
   "immutableReferences": {},
   "generatedSources": [],
   "deployedGeneratedSources": [],
-  "sourceMap": "565:151:28:-:0;;;;;;;;;;;;;;;;;;;",
-  "deployedSourceMap": "565:151:28:-:0;;;;;",
+  "sourceMap": "565:151:24:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "565:151:24:-:0;;;;;",
   "source": "/**\n>>>> TO DO: Fundamental to the protcol is the capacity for CP to delegate part or all the requiremenets of the RfC \n    - The incentive not to take all offers and then delegate is a reputation-system based on a posterirri performance and quality feedback of each \n    delivere content + a minimum safety deposit that accrue close to exponentially hwne a CP takes all propositions (avoid monopolistic position and behaviors\n    on the content delivery service / the overall protocol...)\n**/\n\n// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity ^0.8.0;\n\ncontract CPDelegate {\n\n    // >>>> THERE already even as an empty shell because being part in the design of the core logic of a the working protocol \n}",
   "sourcePath": "/home/w31rdm4ch1n3s/ConsenSys_dev_bootcamp/final_project/consensys_bootcamp_2021_minimum_viable_final_project/contracts/CPDelegate.sol",
   "ast": {
     "absolutePath": "project:/contracts/CPDelegate.sol",
     "exportedSymbols": {
       "CPDelegate": [
-        4112
+        3864
       ]
     },
-    "id": 4113,
+    "id": 3865,
     "license": "GPL-3.0-or-later",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 4111,
+        "id": 3863,
         "literals": [
           "solidity",
           "^",
@@ -31,7 +31,7 @@
           ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "540:23:28"
+        "src": "540:23:24"
       },
       {
         "abstract": false,
@@ -39,32 +39,32 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 4112,
+        "id": 3864,
         "linearizedBaseContracts": [
-          4112
+          3864
         ],
         "name": "CPDelegate",
         "nodeType": "ContractDefinition",
         "nodes": [],
-        "scope": 4113,
-        "src": "565:151:28"
+        "scope": 3865,
+        "src": "565:151:24"
       }
     ],
-    "src": "540:176:28"
+    "src": "540:176:24"
   },
   "legacyAST": {
     "absolutePath": "project:/contracts/CPDelegate.sol",
     "exportedSymbols": {
       "CPDelegate": [
-        4112
+        3864
       ]
     },
-    "id": 4113,
+    "id": 3865,
     "license": "GPL-3.0-or-later",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 4111,
+        "id": 3863,
         "literals": [
           "solidity",
           "^",
@@ -72,7 +72,7 @@
           ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "540:23:28"
+        "src": "540:23:24"
       },
       {
         "abstract": false,
@@ -80,18 +80,18 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 4112,
+        "id": 3864,
         "linearizedBaseContracts": [
-          4112
+          3864
         ],
         "name": "CPDelegate",
         "nodeType": "ContractDefinition",
         "nodes": [],
-        "scope": 4113,
-        "src": "565:151:28"
+        "scope": 3865,
+        "src": "565:151:24"
       }
     ],
-    "src": "540:176:28"
+    "src": "540:176:24"
   },
   "compiler": {
     "name": "solc",
@@ -99,7 +99,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.4",
-  "updatedAt": "2022-02-02T17:26:08.577Z",
+  "updatedAt": "2022-02-02T21:42:39.942Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

@@ -7,23 +7,23 @@
   "immutableReferences": {},
   "generatedSources": [],
   "deployedGeneratedSources": [],
-  "sourceMap": "581:749:34:-:0;;;;;;;;;;;;;;;;;;;",
-  "deployedSourceMap": "581:749:34:-:0;;;;;",
+  "sourceMap": "581:749:30:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "581:749:30:-:0;;;;;",
   "source": "// // SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity ^0.8.0;\n\n// import \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n// import \"@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol\";\n// import \"@openzeppelin/contracts/access/Ownable.sol\";\n// import \"@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol\";\n// import \"@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol\";\n// import \"./FundsManager.sol\";\n// import \"./Permissions.sol\";\n\n// /** Eventually leading to an open Content Shares Market is something that is tought of */\n\ncontract InvestorFundSharesOnContent /**is ERC20, ERC20Burnable, Ownable, ERC20Permit, ERC20Votes, Permissions **/{\n\n//   //use safeERC20\n\n//   mapping(address => uint256) public amountERC20;\n\n//   constructor()\n//     ERC20(\"InvestorContentShares\", \"ICS\")\n//     ERC20Permit(\"InvestorContentShares\") {\n//       //no preminted => mint for each new RfC token issued according to the amount and the ratio of each investor put in the total \n//       // [FOR FUNDSMANAGER contract: (shares are calculated with a quadratic function so passed the CP's funding threshold no whale entity \n//       // can DOMINATE/take over one content revenue)\n//   }\n//   function mint(address to, uint256 amount) public onlyFMProxy {\n//       _mint(to, amount);\n//   }\n\n}\n",
   "sourcePath": "/home/w31rdm4ch1n3s/ConsenSys_dev_bootcamp/final_project/consensys_bootcamp_2021_minimum_viable_final_project/contracts/InvestorFundSharesOnContent.sol",
   "ast": {
     "absolutePath": "project:/contracts/InvestorFundSharesOnContent.sol",
     "exportedSymbols": {
       "InvestorFundSharesOnContent": [
-        4992
+        4787
       ]
     },
-    "id": 4993,
+    "id": 4788,
     "license": "GPL-3.0-or-later",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 4991,
+        "id": 4786,
         "literals": [
           "solidity",
           "^",
@@ -31,7 +31,7 @@
           ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "48:23:34"
+        "src": "48:23:30"
       },
       {
         "abstract": false,
@@ -39,32 +39,32 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 4992,
+        "id": 4787,
         "linearizedBaseContracts": [
-          4992
+          4787
         ],
         "name": "InvestorFundSharesOnContent",
         "nodeType": "ContractDefinition",
         "nodes": [],
-        "scope": 4993,
-        "src": "581:749:34"
+        "scope": 4788,
+        "src": "581:749:30"
       }
     ],
-    "src": "48:1283:34"
+    "src": "48:1283:30"
   },
   "legacyAST": {
     "absolutePath": "project:/contracts/InvestorFundSharesOnContent.sol",
     "exportedSymbols": {
       "InvestorFundSharesOnContent": [
-        4992
+        4787
       ]
     },
-    "id": 4993,
+    "id": 4788,
     "license": "GPL-3.0-or-later",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 4991,
+        "id": 4786,
         "literals": [
           "solidity",
           "^",
@@ -72,7 +72,7 @@
           ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "48:23:34"
+        "src": "48:23:30"
       },
       {
         "abstract": false,
@@ -80,18 +80,18 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 4992,
+        "id": 4787,
         "linearizedBaseContracts": [
-          4992
+          4787
         ],
         "name": "InvestorFundSharesOnContent",
         "nodeType": "ContractDefinition",
         "nodes": [],
-        "scope": 4993,
-        "src": "581:749:34"
+        "scope": 4788,
+        "src": "581:749:30"
       }
     ],
-    "src": "48:1283:34"
+    "src": "48:1283:30"
   },
   "compiler": {
     "name": "solc",
@@ -99,7 +99,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.4",
-  "updatedAt": "2022-02-02T17:26:08.594Z",
+  "updatedAt": "2022-02-02T21:42:39.964Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

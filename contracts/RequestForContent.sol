@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 
 /** Simplify: make it ERC-721 instead of ERC-1155 for now **/
-//import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
@@ -18,23 +18,18 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 //import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "./FundsManager.sol";
 import "./Permissions.sol";
-import "./IRequestForContent.sol";
+//import "./IRequestForContent.sol";
 
-contract RequestForContent is Permissions, /*IRequestForContent,*/ ERC721 {          
+contract RequestForContent is Permissions, /*IRequestForContent, */ERC721 {          
 
     using Counters for Counters.Counter;
     using SafeMath for uint256;
 
     Counters.Counter private tokenIdTracker;
     
+    // tracking address of an NFT through its id should likely be done off-chain => with web3.js!! 
+
     mapping (address => Counters.Counter) private rfcNFTTokenAddressAssociatedID;
-
-    //bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    // It is a role that is aimed at allowing FundsManager contract to make inter-contracts calls, avoiding any direct users and others (potentially malicious contract)
-    //  to call the functions on which I define a modifier to only allow this role to be the caller:
-    
-
-    address private caller;
 
     address private owner;
 
@@ -249,7 +244,7 @@ contract RequestForContent is Permissions, /*IRequestForContent,*/ ERC721 {
 
     // Definitively better if you can do all that with ERC1155.... Otherwise get back to Ownable pattern
     constructor() ERC721("RequestForContent", "RFC") {
-        //owner = msg.sender;
+        
     }
 
     // avoid err double inheritance of supportsInterface in this contract 
@@ -270,6 +265,8 @@ contract RequestForContent is Permissions, /*IRequestForContent,*/ ERC721 {
     }
 
     function getRfCNFTTokenAddress(uint256 _rfcId) internal returns (address) {
+
+
         //return 
     }
 

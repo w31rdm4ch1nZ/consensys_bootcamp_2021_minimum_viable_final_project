@@ -8,7 +8,8 @@ contract RfCPooledFunds is Permissions {
 
     //TO DO:
     //Contracts that allows to keep track of the funds associated to an RfC token 
-    // and also the share of those by an individual account  in that pooled fund.
+    // and also the share of those by an individual account in that pooled fund.
+    //      => eventually: ERC20 contract (WETH over Eth) => goes hand in hand with ERC1155 shift
 
     function poolFundsForRfC() external onlyFMProxy /*see for creating a few roles if you have time for that */ {
 

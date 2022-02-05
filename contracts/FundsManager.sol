@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
+/** 
+    >>>> I ran out in an OOG error on this contract. What made it possible for me to get out of this is commenting each reference to the external RfC contract
+    >>>> I need to research that to understand how to make it work at some point in my test/building process.
+**/
+
 //import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";  // => quick double check to se how to use it (modifier or other stuff?)
@@ -115,7 +120,7 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
 
     //Returns balance of InvestorEscrow contract
     function getContractBalance() public view returns(uint256){
-        return address(this).balance;
+        return balance[address(this)];
     }
 
     // check for security deposit status for a given account
@@ -190,8 +195,8 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
 
     } 
 
-
-    function safeDepositForMembership(address _aspiringMember) public payable nonReentrant {
+    // as it is callable directly by anyone, you might not need the argument address, but only use msg.sender instead
+    function safeDepositForMembership(address _aspiringMember) external payable nonReentrant {
         // to think about: _setupRole(MEMBERS_W_SAFETY_DEPOSIT, member);
         require(msg.sender.balance >= 0, "balance must be positive");  // don't think it is useful...
         require(msg.value == 0.1 ether, "The amount of 0.1 ether is not reached");  // be ready for your exection to err here

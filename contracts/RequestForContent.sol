@@ -20,6 +20,17 @@ import "./FundsManager.sol";
 import "./Permissions.sol";
 //import "./IRequestForContent.sol";
 
+
+/**
+
+    >>>> Study how to refactor this contract to separate clearly:
+            - the use of the underlying ERC721 standard
+            - how our use case require extensions to this standard, and how this contract implements it as extensions (not modifs)
+            to the ERC721 standard (we don't want to break the standard)
+
+ */
+
+
 contract RequestForContent is Permissions, /*IRequestForContent, */ERC721 {          
 
     using Counters for Counters.Counter;

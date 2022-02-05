@@ -63,3 +63,10 @@ TBD
 ## Link to the screencast
 
 TBD
+
+## Future iteration planned changes
+
+- ERC115 <- ERC721
+- swap Eth to DAI when deposited in the protocol (FundsManager contract)
+- implement proxy + upgrade pattern (following OpenZeppelin docs and library)
+- ...

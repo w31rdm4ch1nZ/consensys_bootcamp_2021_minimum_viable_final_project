@@ -205,7 +205,7 @@ const initialize = () => {
       gas: web3.utils.toHex(21000),
       gasPrice: web3.utils.toHex(web3.utils.toWei('10', 'Gwei')),
     }, (result) => {
-      console.log(result)
+      //console.log(result)
     })
     //.then.
   }

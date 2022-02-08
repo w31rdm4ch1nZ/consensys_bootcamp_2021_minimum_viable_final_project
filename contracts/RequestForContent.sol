@@ -15,10 +15,8 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 //import "@openzeppelin/contracts/utils/Arrays.sol";  // not used so far
 
 // for defining role-based access control:
-//import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "./FundsManager.sol";
-import "./Permissions.sol";
-//import "./IRequestForContent.sol";
+import "./RBAC/Permissions.sol";
 
 
 /**

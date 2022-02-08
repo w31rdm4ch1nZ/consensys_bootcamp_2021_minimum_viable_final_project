@@ -7,7 +7,7 @@ pragma solidity ^0.8.0;
 // import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 // import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 // import "./FundsManager.sol";
-// import "./Permissions.sol";
+// import "./RBAC/Permissions.sol";
 
 // /** Eventually leading to an open Content Shares Market is something that is tought of */
 

@@ -4,6 +4,8 @@
 
 /** >>>> CONTRACT COPIED FROM OPENZEPPLIN REPO: I wanted to be sure to understand the pull pattern
 and integrate it to my use case <<<<<
+
+    ==> Require you take a close look to the Open Zeppelin Escrow contract!!!
 **/
 
 pragma solidity ^0.8.0;

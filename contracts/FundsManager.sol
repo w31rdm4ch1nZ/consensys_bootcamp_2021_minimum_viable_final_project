@@ -8,15 +8,19 @@ pragma solidity ^0.8.0;
 
 //import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";  // => quick double check to se how to use it (modifier or other stuff?)
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";  
 //import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 //import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
 import "./RequestForContent.sol";
 import "./RfCEscrow.sol";
 // for defining role-based access control:
-import "./Permissions.sol";
+import "./RBAC/Permissions.sol";
+import "./membership/MembershipNFT.sol";
 contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     
+    MembershipNFT public membershipNFT;
+    bool public initialized = false;
+
     //using Counters for Counters.Counter;
     //using SafeERC20 for IERC20; // shouldn't be needed in 1st iteration as I limit ERC20-like to ether... or you make the choice to use WETH to simplify how you deal with tokens
                                 // and stay in the ERC20 standards and the reuse is enables instead of coding you own custom logic for every crypto-asset (especially since
@@ -35,7 +39,7 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
 
     mapping(address => uint256 ) private balance;
 
-    mapping(address => bool) private membershipStatus;
+    //mapping(address => bool) private membershipStatus;    => no more needed if you make it an NFT
 
     //mapping(address => uint256) private balanceAccount;   => nod needed => balance.addr
 
@@ -99,19 +103,31 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     }
 
     // you have to order it...
-    event MadeSafeDeposit(address indexed member);
+    //Membership related events: 
+    event MembershipMinted(address _from, address _to, uint256 _amount, uint256 _matureTime);
+    event RedeemMembership(address _member/*, uint256 _amount*/); // => for memebership it's always the same amount
+    event Initialized(address _membershipNFT);
 
-    event DepositForRfC(address indexed userDepositing, uint256 deposit, uint256 indexed RfCid);
-
-    event WithdrawSafeDeposit(address investor, bool success);
-
+    //RfC investor's related events
+    event RfCMinted(address _from, address _toRfCEscrow, uint256 _amount, uint256 _matureTime); // the tricky argument is _toRfCEscrow: relates to an NFT acting as an Escrow contract also (still to be explored)
+                                                                                                //  => actually handled by the RfCNFT contract...
+    event DepositForRfC(address indexed _userDepositing, uint256 _deposit, uint256 indexed _RfCid);
+    event RfCCancelled(address _member, uint256 _amount);
+    event InvestmentRedeemed(address indexed investor, uint256 indexed rfcId, uint256 amount);  //rfcId is here so it only redeems the amount for a specific Rfc (not all RfCs an investor might have invested in)
+    event InvestorSharesMinted(address indexed investor, uint256 amount);   // part of the RfC NFT: tracking its investors positions *and future shares*
+    event InvestorRfCNFTRedeemedFutureShares(address indexed investor, uint256 ratio, uint256 _amount); // where _amount is a mix of ERC20 wrapper and RfC NFT:
+                                                                                                        //  => no, it's an NFT that *defines a fee* taken by the investor 
+                                                                                                        // on the future access to the content by other members
+    //Content Providers events:
     event CPRewardRedeemed(address indexed cp, uint256 indexed rfcId, uint256 amount);
 
-    event InvestmentRedeemed(address indexed investor, uint256 indexed rfcId, uint256 amount);
 
-    event InvestorSharesMinted(address indexed investor, uint256 amount);
+
+    
 
     event FundsCommittedToRfC(address user, uint256 rfcId, uint256 unlockDate);
+    
+
 
     constructor() {
         //whatever:trying to deploy it successfully (rn, chocking on an OOG error)
@@ -122,6 +138,10 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     function getContractBalance() public view returns(uint256){
         return balance[address(this)];
     }
+
+    function contractAddress() public view returns (address) {
+        return address(this);
+    }   
 
     // check for security deposit status for a given account
     function getSDstatus(address _user) public view returns(bool) {
@@ -141,7 +161,7 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
         return rfcNFTTokenIdFundAmount[rfcTokenAddress][_rfcId];
     }
 
-    function setRfCFundAmount( address _user, uint256 _rfcId, address  _rfcToken, uint256 _amount) internal nonReentrant returns(uint256) {
+    function setRfCFundAmount( address _user, uint256 _rfcId, address  _rfcToken, uint256 _amount) internal nonReentrant {
         require(_rfcId >= 0, "not a valid id");
         require(_rfcToken != address(0), "address can't be 0, the contract has to exist already");
         require(_user != address(0), "invalid EOA");
@@ -150,7 +170,7 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
         rfcTokenAddress = getRfCTokenAddress(_rfcId);
 
         //TO DO: get the amount of funds allocated to a specific RfC 
-        return rfcNFTTokenIdFundAmount[rfcTokenAddress][_rfcId] += _amount;
+        rfcNFTTokenIdFundAmount[rfcTokenAddress][_rfcId] += _amount;
     }
 
     function getRfCTokenAddress(uint256 _rcfId) public view returns (address) {
@@ -161,9 +181,9 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     }
 
     // only useful if you can't track the NFT address following their minting (=>RfC.sol contract) 
-    function setRfCTokenAddr(uint256 _id, address _rfc) internal {
-        //tokenRfCAddr[_id] = ?? => address of the minted token
-    }
+    // function setRfCTokenAddr(uint256 _id, address _rfc) internal {
+    //     //tokenRfCAddr[_id] = ?? => address of the minted token
+    // }
 
     function getAmountUserDepositForRfC(address _account, uint256 _amount, uint256 _rcfId) public view returns (uint256 amount) {
         return investorAmountToSpecificRfC[_account][_rcfId];
@@ -196,15 +216,15 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     } 
 
     // as it is callable directly by anyone, you might not need the argument address, but only use msg.sender instead
-    function safeDepositForMembership(address _aspiringMember) external payable nonReentrant {
+    function safeDepositForMembership() external payable nonReentrant {
         // to think about: _setupRole(MEMBERS_W_SAFETY_DEPOSIT, member);
-        require(msg.sender.balance >= 0, "balance must be positive");  // don't think it is useful...
-        require(msg.value == 0.1 ether, "The amount of 0.1 ether is not reached");  // be ready for your exection to err here
+        //require(balance >= 0, "balance must be positive");  // don't think it is useful...
+        require(msg.value >= 0.1 ether, "The amount of 0.1 ether is not reached");  // be ready for your exection to err here
                                                                                     // simply bc more ether has been sent, and so it reverts
                                                                                     // => how to make sure to maximize successful txs for users?
                                                                                     //  so they get their funds back in case too much is sent?
-
-        lockSafeDeposit(_aspiringMember);
+        address aspiringMember = msg.sender;
+        lockSafeDeposit(aspiringMember);
         //try {
         balance[msg.sender] -= 0.1 ether;
         //test if you need this (as it will only be ether for now, you should not)
@@ -216,8 +236,8 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
         //set member status
         //membershipStatus = true;
         //set safety deposit time to calculate the unlock time
-        memberSafeDepositStartTime[_aspiringMember] = block.timestamp;                      // equivalent to now (using it to be explicit)
-        emit MadeSafeDeposit(_aspiringMember);
+        memberSafeDepositStartTime[aspiringMember] = block.timestamp;                      // equivalent to now (using it to be explicit)
+        emit MadeSafeDeposit(aspiringMember);
     } 
 
     function initiateWithdrawSafeDeposit(address _member) external onlyMember nonReentrant {
@@ -244,7 +264,7 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     // }
 
     // again by seting the scope to private I only allow a function from this contract (does not mean it can't be abused if not careful...)
-    function lockSafeDeposit(address _user)private  onlyFMProxy nonReentrant {
+    function lockSafeDeposit(address _user) private  onlyFMProxy nonReentrant {
         require(safeDepositMade[_user] != true, "The security deposit is already met");
 
         // >>>> check the conversion MIN_ESCROW_TIME to unix time so no bug:

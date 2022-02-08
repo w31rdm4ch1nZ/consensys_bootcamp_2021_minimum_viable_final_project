@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./FundsManager.sol";
-import "./Permissions.sol";
+import "./RBAC/Permissions.sol";
 
 contract SimpleInvestorVote {
 

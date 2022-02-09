@@ -31,7 +31,7 @@ contract MembershipNFT is ERC721Burnable, ERC721Enumerable, Permissions {
         return tokenCounter - 1; // return ID
     }
 
-    function tokenDetails(uint256 _tokenId) public view returns (uint256, uint256) {
+    function membershipTokenDetails(uint256 _tokenId) public view returns (uint256, uint256) {
         require(_exists(_tokenId), "MembershipNFT: Query for nonexistent token");
 
         return (amount[_tokenId], matureTime[_tokenId]);

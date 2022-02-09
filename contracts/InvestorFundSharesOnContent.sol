@@ -11,6 +11,12 @@ pragma solidity ^0.8.0;
 
 // /** Eventually leading to an open Content Shares Market is something that is tought of */
 
+
+/* MIGHT BE USELESS AS I USE NFT CONTRACT TO CALCULATE AND THEN SEND TO THE FundsManager contract so it handles
+the investors fee payment 
+        => calculation are done through the RfC NFT data, and then payments managed by the FM contract (through the inheritance of te PullPayment contract) 
+*/
+
 contract InvestorFundSharesOnContent /**is ERC20, ERC20Burnable, Ownable, ERC20Permit, ERC20Votes, Permissions **/{
 
 //   //use safeERC20

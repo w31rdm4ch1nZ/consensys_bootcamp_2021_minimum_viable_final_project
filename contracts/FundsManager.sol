@@ -16,9 +16,10 @@ import "./RfCEscrow.sol";
 // for defining role-based access control:
 import "./RBAC/Permissions.sol";
 import "./membership/MembershipNFT.sol";
-contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
+contract FundsManager is Permissions, Initializable, ReentrancyGuard {
     
     MembershipNFT public membershipNFT;
+    RequestForContentNFT public rfcNFT;
     bool public initialized = false;
 
     //using Counters for Counters.Counter;
@@ -105,8 +106,7 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     // you have to order it...
     //Membership related events: 
     event MembershipMinted(address _from, address _to, uint256 _amount, uint256 _matureTime);
-    event RedeemMembership(address _member/*, uint256 _amount*/); // => for memebership it's always the same amount
-    event Initialized(address _membershipNFT);
+    event RedeemMembership(address _member/*, uint256 _amount*/); // => for membership it's always the same amount
 
     //RfC investor's related events
     event RfCMinted(address _from, address _toRfCEscrow, uint256 _amount, uint256 _matureTime); // the tricky argument is _toRfCEscrow: relates to an NFT acting as an Escrow contract also (still to be explored)
@@ -118,16 +118,33 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     event InvestorRfCNFTRedeemedFutureShares(address indexed investor, uint256 ratio, uint256 _amount); // where _amount is a mix of ERC20 wrapper and RfC NFT:
                                                                                                         //  => no, it's an NFT that *defines a fee* taken by the investor 
                                                                                                         // on the future access to the content by other members
+    
+    //initialize for both NFT contracts (membership and RfC) => for now try to separate both core logic: the
+    // soon to be DeFi powered one, and protocol treasury so far, and the definition of the RfC itself in a trsutless manner 
+    // (going further a content/information market that would allow new incentive setings vs. current ones through the Internet as we know it (Google ad tracking based revenue, etc.))
+    event Initialized(address _membershipNFT, address _rfcNFT);
+    
     //Content Providers events:
     event CPRewardRedeemed(address indexed cp, uint256 indexed rfcId, uint256 amount);
-
-
-
-    
+   
 
     event FundsCommittedToRfC(address user, uint256 rfcId, uint256 unlockDate);
     
 
+    modifier isInitialized() {
+        require(initialized, "Contract is not yet initialized");
+        _;
+    }
+
+    function initialize(address _membershipNFT, address _rfcNFT) external onlyOwner {
+        require(!initialized, "Contract already initialized.");
+        membershipNFT = membershipNFT(_membershipNftAddress);
+        rfcNFT = frcNFT(_rfcNFTAddress);
+
+        initialized = true;
+
+        emit Initialized(_membershipNFTAddress);
+    }
 
     constructor() {
         //whatever:trying to deploy it successfully (rn, chocking on an OOG error)
@@ -201,37 +218,40 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
 
     }
 
-    function investETH(uint256 _rfcId, address _rfcToken) external payable onlyMember nonReentrant {
-        require(msg.sender.balance >= msg.value, "user doesn't have emough funds => revert");
+    function investETH(address _recipient, uint256 _rfcId, address _rfcToken, uint256 _extensionTimeFundsLocked) external payable onlyMember isInitialized nonReentrant {
+        require(_recipient != address(0), "Cannot escrow to zero address.");
+        require(msg.value > 0 ether, "user doesn't have emough funds => revert");
+
+        uint256 amount = msg.value;
 
         depositStartTime[msg.sender] = block.timestamp;
 
-        balance[msg.sender] -= msg.value;
-        
+        uint256 matureTime = depositStartTime[msg.sender] + 60 days + _extensionTimeFundsLocked;
+
+        //balance[msg.sender] -= msg.value; => unnecessary fo ETH
+             
         //track amount invested by a user on a specific RfC:
         investorAmountToSpecificRfC[msg.sender][_rfcId] += msg.value;
 
-        emit DepositForRfC(msg.sender, msg.value, _rfcId);
+        rfcNFT.mintRfCInvestmentNFT(_recipient, amount, matureTime);
+
+        emit DepositForRfC(msg.sender, _recipient, amount, _rfcId, matureTime);
 
     } 
 
     // as it is callable directly by anyone, you might not need the argument address, but only use msg.sender instead
-    function safeDepositForMembership() external payable nonReentrant {
+    function safeDepositForMembership(address _recipient) external payable nonReentrant {
         // to think about: _setupRole(MEMBERS_W_SAFETY_DEPOSIT, member);
         //require(balance >= 0, "balance must be positive");  // don't think it is useful...
+        require(_recipient != address(0), "can't be address 0, or the user loses funds");
         require(msg.value >= 0.1 ether, "The amount of 0.1 ether is not reached");  // be ready for your exection to err here
                                                                                     // simply bc more ether has been sent, and so it reverts
                                                                                     // => how to make sure to maximize successful txs for users?
                                                                                     //  so they get their funds back in case too much is sent?
         address aspiringMember = msg.sender;
         lockSafeDeposit(aspiringMember);
-        //try {
-        balance[msg.sender] -= 0.1 ether;
-        //test if you need this (as it will only be ether for now, you should not)
-        //address(this).balance += msg.value;
-        //}
-        //catch {revert()}
-        //safeDepositMade = true;
+
+        uint256 amountToReturn = 0.1 ether - msg.value;
 
         //set member status
         //membershipStatus = true;
@@ -240,8 +260,19 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
         emit MadeSafeDeposit(aspiringMember);
     } 
 
-    function initiateWithdrawSafeDeposit(address _member) external onlyMember nonReentrant {
+    function redeemSafeDepositMembership(uint256 _tokenId) external onlyMember isInitialized nonReentrant {
+        require(membershipNFT.ownerOf(_tokenId) == msg.sender, "Must own token to claim underlying 0.1 Eth");
 
+        (uint256 amount, uint256 matureTime) = escrowNFT.tokenDetails(_tokenId);
+        require(matureTime <= block.timestamp, "Escrow period not expired.");
+
+        membershipNFT.burn(_tokenId);
+
+        (bool success, ) = msg.sender.call{value: amount}("");
+
+        require(success, "Transfer failed.");
+
+        emit Redeemed(msg.sender, amount);
         //starts a timer that last about 30 days (check the ) that once done allow direct withdrawal (simplest form I can think of now)
 
         // if timer finished, then withdraw, then once withdraw succesfully, revoke membership (that might be a tricky one in terms of
@@ -264,6 +295,7 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
     // }
 
     // again by seting the scope to private I only allow a function from this contract (does not mean it can't be abused if not careful...)
+    //  => merge function logic w/ invest and safedeposit => then get rid of it
     function lockSafeDeposit(address _user) private  onlyFMProxy nonReentrant {
         require(safeDepositMade[_user] != true, "The security deposit is already met");
 
@@ -280,9 +312,9 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
 
     }
 
-    function unlock(address _user, uint256 _amount) private nonReentrant {
-        //call it from another function in this contract either once condition for unlock funds are met, or because the expiration date is reached
-    }
+    function redeemInvestorsReward()external onlyMember {}
+
+    function redeemCPsReward() onlyCP {}
 
     //specific withdraw (ACTUALLY make it for both cases): when the RfC doesn't pass the investors vote (time of deposit for investors who vote with ether +
     //  15 days):
@@ -304,6 +336,15 @@ contract FundsManager is Permissions, /*Initializable,*/ ReentrancyGuard {
         //require(success, "Transfer failed.");
 
         emit InvestmentRedeemed(_account, _rfcId, investorAmountToSpecificRfC[_account][_rfcId]);
+    }
+
+    //Content shares Market through escrow and shares tracking + ERC20 wrapper allowinf the trade of shares on future content revenues
+    function sellRfCShares(uint256 _rfcId, uint256 _sharesERC20) external onlyMember returns(uint256 amount) {
+
+    }
+
+    function buyRfCShares()external onlyMember returns(uint256 amount) {
+        
     }
 
     function depositPayAccessContent(uint256 _rfcId, uint256 _amount) external onlyMember nonReentrant {

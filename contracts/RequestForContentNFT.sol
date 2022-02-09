@@ -8,7 +8,12 @@ import "./RBAC/Permissions.sol";
 contract RequestForContentNFT is ERC721Burnable, ERC721Enumerable, Permissions {
     
     //using Counters for Counters.Counter;
-    uint256 public tokenCounter = 0;
+    //uint256 public tokenCounter = 0; => tokenIDTracker instead
+    using Counters for Counters.Counter;
+    using SafeMath for uint256;
+
+    Counters.Counter private tokenIdTracker;
+
 
     // NFT data
     mapping(uint256 => uint256) public amount;  // totalfunds managed by contract
@@ -17,16 +22,26 @@ contract RequestForContentNFT is ERC721Burnable, ERC721Enumerable, Permissions {
     //investor's ratio on future content + fee calculation state variables
     // + make sure those are enabled only once redeemable features are inactive/inaccessible by the in vestor/member (a redeem once security)
 
-
+    //event SucessfullyMinted(address RfC, uint256 id, uint256 time);
     constructor() ERC721("RequestForContentNFTCommissioned", "RFCCO") {
     }
-       
-    function mintRfCInvestment(address _recipient, uint256 _amount, uint256 _matureTime) internal onlyFMProxy returns (uint256) {
+    
+    function getRfCTracker() external onlyFMProxy returns (uint256) { 
+        return tokenIdTracker.current();
+    }
+
+    function mintRfCInvestmentNFT(address _recipient, uint256 _amount, uint256 _matureTime) internal onlyFMProxy returns (uint256) {
         // minted by FM contract, with _amount = the total funds amount => called from FM contract 
-        _mint(_recipient, tokenCounter);
+        
+        uint256 tokenCurrentId = tokenIdTracker.current();
+        tokenIdTracker.increment();
+
+        _mint(_recipient, tokenCurrentId);
+
+        return tokenCurrentId; // not sure necessary => more readable and clear logically if you use the specific function for that (but could help keeping track of id in the FundsManager contract...?)
     }
     
-    function tokenDetails(uint256 _tokenId) public view returns (uint256, uint256) {
+    function rfcTokenDetails(uint256 _tokenId) public view returns (uint256, uint256) {
         require(_exists(_tokenId), "RfCNFT: Query for nonexistent token");
 
         return (amount[_tokenId], matureTime[_tokenId]);

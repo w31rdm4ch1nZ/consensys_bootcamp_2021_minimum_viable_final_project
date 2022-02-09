@@ -26,10 +26,15 @@ import "./RBAC/Permissions.sol";
             - how our use case require extensions to this standard, and how this contract implements it as extensions (not modifs)
             to the ERC721 standard (we don't want to break the standard)
 
+                ==> Currwently being DONE
+
  */
 
 
-contract RequestForContent is Permissions, /*IRequestForContent, */ERC721 {          
+contract RequestForContent is Permissions, /*IRequestForContent, ERC721*/ {          
+
+    RequestForContentNFT public rfcNFT;
+    bool public initialized = false;
 
     using Counters for Counters.Counter;
     using SafeMath for uint256;
@@ -228,13 +233,20 @@ contract RequestForContent is Permissions, /*IRequestForContent, */ERC721 {
         require(msg.sender == owner, "the caller is not the FundsManager contract");
         _;
     }
+    
+    modifier isInitialized() {
+        require(initialized, "Contract is not yet initialized");
+        _;
+    }
 
+    
     event RfCProposal(address proposer, bool success);
 
     event RfCMinted(address indexed RfCTokenAddress, uint256 RfCidCounter); // => get the token address through web3.js and keep a dynamic array of the NFT address and Ids, so you can use this 
                                                                             //  data somewhere else in the contract
+    event Initialized(address _membershipNFT, address _rfcNFT);
 
-    //event RfCCPselected();
+    event RfCCPselected(address _cpCommitted, uint256 _amountCommittedToRfC);
 
 
     //Set a RfC structure (built with inputs from the Proposer) to enter the proposal to CPs cycle will require from investors to commit funds/send funds to the escrow 
@@ -251,23 +263,28 @@ contract RequestForContent is Permissions, /*IRequestForContent, */ERC721 {
 
     event SucessfullyMinted(address RfC, uint256 id, uint256 time);
 
-    // Definitively better if you can do all that with ERC1155.... Otherwise get back to Ownable pattern
-    constructor() ERC721("RequestForContent", "RFC") {
-        
+
+    function initialize(address _membershipNFT, address _rfcNFT) external onlyOwner {
+        require(!initialized, "Contract already initialized.");
+        rfcNFT = frcNFT(_rfcNFTAddress);
+
+        initialized = true;
+
+        emit Initialized(_rfcNFTAddress);
     }
 
-    // avoid err double inheritance of supportsInterface in this contract 
-    function supportsInterface(bytes4 interfaceId) 
-    public 
-    view 
-    virtual 
-    override(
-        ERC721, 
-        AccessControlEnumerable
-        ) 
-        returns (bool) {
-        return super.supportsInterface(interfaceId);
-    }
+    // avoid err double inheritance of supportsInterface in this contract => handled in the separate contract RfCNFT
+    // function supportsInterface(bytes4 interfaceId) 
+    // public 
+    // view 
+    // virtual 
+    // override(
+    //     ERC721, 
+    //     AccessControlEnumerable
+    //     ) 
+    //     returns (bool) {
+    //     return super.supportsInterface(interfaceId);
+    // }
 
     function getRfCTracker() external onlyFMProxy returns (uint256) { 
         return tokenIdTracker.current();
@@ -351,6 +368,13 @@ contract RequestForContent is Permissions, /*IRequestForContent, */ERC721 {
 
     function burnRfCInCaseNotPassed(uint256 _tmpRfCId) external {
         _burn(_tmpRfCId);
+    }
+
+    function mintERC20RfCShares() onlyMember {
+        //TO DO: ENABLE the reveneu shares on content open market
+        
+        // Call the ERC20 standard mint function that allows to create an ERC20 wrapper (would be, again, better to use ERC1155, but I'll come to that)
+        //_mint();
     }
 
     // //Following ERC1155 standard:

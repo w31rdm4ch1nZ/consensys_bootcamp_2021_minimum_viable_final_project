@@ -17,7 +17,7 @@ the investors fee payment
         => calculation are done through the RfC NFT data, and then payments managed by the FM contract (through the inheritance of te PullPayment contract) 
 */
 
-contract InvestorFundSharesOnContent /**is ERC20, ERC20Burnable, Ownable, ERC20Permit, ERC20Votes, Permissions **/{
+contract SharesOnContentFutureRevenue /**is ERC20, ERC20Burnable, Ownable, ERC20Permit, ERC20Votes, Permissions **/{
 
 //   //use safeERC20
 

@@ -48,8 +48,8 @@ contract RequestForContentNFT is ERC721Burnable, ERC721Enumerable, Permissions {
     }
 
     //get token address (get rid of it in your core contract)
-    function contractAddress() public view returns (address) {
-    return address(this);
+    function rfcNFTContractAddress() external onlyFundManager view returns (address) {
+        return address(this);
     }
 
     // to avoid compiler warnings associated to multiple inheritance and override not specified, we explicitly declare it:

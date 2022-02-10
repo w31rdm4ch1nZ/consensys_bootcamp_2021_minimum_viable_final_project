@@ -96,10 +96,21 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
         _;
     }
 
+
     modifier withdrawApproved() {
         require(locked == false, "funds are locked");
         require(block.timestamp >= depositStartTime[user] + MIN_ESCROW_TIME);
         require(addr.balance <= msg.sender.balance);
+        _;
+    }
+
+    modifier isInitialized() {
+        require(initialized, "Contract is not yet initialized");
+        _;
+    }
+
+    modifier rfcInPrdouction() {
+        require(hasPassed == true, "This rfc has not been approved and/or found a CP ready to deliver");
         _;
     }
 
@@ -129,14 +140,8 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
    
 
     event FundsCommittedToRfC(address user, uint256 rfcId, uint256 unlockDate);
-    
 
-    modifier isInitialized() {
-        require(initialized, "Contract is not yet initialized");
-        _;
-    }
-
-    function initialize(address _membershipNFT, address _rfcNFT) external onlyOwner {
+    function initialize(address _membershipNFT, address _rfcNFT) external /*onlyOwner*/ {
         require(!initialized, "Contract already initialized.");
         membershipNFT = membershipNFT(_membershipNftAddress);
         rfcNFT = frcNFT(_rfcNFTAddress);
@@ -146,29 +151,28 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
         emit Initialized(_membershipNFTAddress);
     }
 
-    constructor() {
-        //whatever:trying to deploy it successfully (rn, chocking on an OOG error)
-        owner = msg.sender;
-    }
 
-    //Returns balance of InvestorEscrow contract
     function getContractBalance() public view returns(uint256){
         return balance[address(this)];
     }
 
-    function contractAddress() public view returns (address) {
+    function getContractAddress() public view returns (address) {
         return address(this);
     }   
 
-    // check for security deposit status for a given account
+    // check for security deposit/membership status for a given account
     function getSDstatus(address _user) public view returns(bool) {
         
         return safeDepositMade[_user];
     }
 
     function getRfCStatus(uint256 _rfcId) public view returns(bool) {
-        //TO DO
-        return true; // to have a woeking code => dummy empty shell so far
+        if (hasPassed == true) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     function getRfCFundAmount(uint256 _amount, uint256 _rfcId) public view returns(uint256) {
@@ -178,6 +182,7 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
         return rfcNFTTokenIdFundAmount[rfcTokenAddress][_rfcId];
     }
 
+    // Not sure I need it since the rfc NFT minted will act as an escrow for the funding 
     function setRfCFundAmount( address _user, uint256 _rfcId, address  _rfcToken, uint256 _amount) internal nonReentrant {
         require(_rfcId >= 0, "not a valid id");
         require(_rfcToken != address(0), "address can't be 0, the contract has to exist already");
@@ -193,6 +198,7 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
     function getRfCTokenAddress(uint256 _rcfId) public view returns (address) {
         // check if RfC exists => RfC should not ever have the same id => check if Counters from openZeppelin gives this certitude... 
         // TO DO
+        
         return tokenRfCAddr[_rcfId];    // should be set when once mint() happens successfully => sort of callback added to the mintn function called on the 
                                             // RfC NFT contract mint() function.
     }
@@ -314,7 +320,7 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
 
     function redeemInvestorsReward()external onlyMember {}
 
-    function redeemCPsReward() onlyCP {}
+    function redeemCPsReward() external onlyCP {}
 
     //specific withdraw (ACTUALLY make it for both cases): when the RfC doesn't pass the investors vote (time of deposit for investors who vote with ether +
     //  15 days):
@@ -338,15 +344,6 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
         emit InvestmentRedeemed(_account, _rfcId, investorAmountToSpecificRfC[_account][_rfcId]);
     }
 
-    //Content shares Market through escrow and shares tracking + ERC20 wrapper allowinf the trade of shares on future content revenues
-    function sellRfCShares(uint256 _rfcId, uint256 _sharesERC20) external onlyMember returns(uint256 amount) {
-
-    }
-
-    function buyRfCShares()external onlyMember returns(uint256 amount) {
-        
-    }
-
     function depositPayAccessContent(uint256 _rfcId, uint256 _amount) external onlyMember nonReentrant {
         //as investors have shares to a content they produce (that they can eventually sell to other users,
         //  but that will change their status back ti users, or RfCIdInvestor = false), they 
@@ -359,6 +356,14 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
         //mintContentAccess();
     } 
 
+    //Content shares Market through escrow and shares tracking + ERC20 wrapper allowinf the trade of shares on future content revenues
+    function sellRfCShares(uint256 _rfcId, uint256 _sharesERC20) external onlyMember returns(uint256 amount) {
+
+    }
+
+    function buyRfCShares()external onlyMember returns(uint256 amount) {
+        
+    }
 
     /** Interactions with RequestForContent contract: **/
 
@@ -390,18 +395,5 @@ contract FundsManager is Permissions, Initializable, ReentrancyGuard {
 
         return rfcNFTTokenIdFundAmount[_rfcTokenAddr][_rfcId];
     }
-
-    //Default functions in case of accidental crypto sent to the contract => revert => INCLUDE THE revert() logic in
-    //  the deposit function (eg. if an argument is missing, revert:   require(RfCid, etc. ))
-
-    // fallback() external payable {
-    //     //address(this).send(msg.value);
-    //     revert();
-    // }
-
-    function getFMContractAddr() external view onlyFMProxy returns(address) {
-        return address(this);
-    }
-
 
 }
